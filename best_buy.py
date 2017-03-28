@@ -7,10 +7,9 @@ because I want to buy one and am too fussy to wait for shipping.
 import requests
 import json
 import datetime
+from config import API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
-API_KEY = ''
-
 
 def get_todays_opening_time(store):
     ''' take a best buy store dict
