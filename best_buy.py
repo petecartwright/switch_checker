@@ -18,24 +18,30 @@ def get_todays_opening_time(store):
     for day in store['detailedHours']:
         if day['date'] == today:
             return day['open']
+ 
     return '00:00'
+ 
 
-def main():
-    zip_code = '23223'
-    radius_in_miles = '500'
-    # test SKU - this is a Chromecast and should generally be in stock at a lot of places
-    # skus = ['4397400']
-    skus = ['5670003','5670100']
-    attribs_to_show = ['storeId','storeType','name','longName','address','city','region','phone','distance','products.name','products.sku','detailedHours']
-    format_type = 'json'   # can be json or xml
-    page_size = '10'
+def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format_type, page_size):
+    """ Take parameters below and return the URL for the initial page of results
 
+        zip_code (str): zip code to center the search on. 5 digits
+        radius_in_miles (str): how far to check around that zip. BB's API will sometimes give results a little farther than this value
+        skus (list of str): a list of the SKUs to check. Get the SKU from the bestbuy.com page under the title, or from the URL
+                            EX: http://www.bestbuy.com/site/nintendo-switch-32gb-console-gray-joy-con/5670003.p?skuId=5670003 -> SKU is 567003
+        attribs_to_return: What attributes the API should return. Listing here: https://bestbuyapis.github.io/api-documentation/#detail 
+                                                                      and here: https://bestbuyapis.github.io/api-documentation/#common-attributes56
+        format_type (str): 'json' or 'xml'
+        page_size (str): the number of records to return per page. Max 10
+
+        TODO: this should check for valid values and have error handling
+    """
     # start building the initial URL
     stores_function = 'stores(area({zip_code},{radius}))'.format(zip_code=zip_code, radius=radius_in_miles)
     skus_string = ','.join(skus)
     products_string = '+products(sku in({skus}))'.format(skus=skus_string)
     format_string = 'format={format_type}'.format(format_type=format_type)
-    show_string = 'show='+','.join(attribs_to_show)
+    show_string = 'show='+','.join(attribs_to_return)
     page_size_string = 'pageSize={page_size}'.format(page_size=page_size)
     api_key_string = 'apiKey={api_key}'.format(api_key=API_KEY) 
 
@@ -51,6 +57,55 @@ def main():
                   + '&' \
                   + api_key_string
 
+    return initial_url
+
+
+def get_store_info(store, zip_code=None):
+    """ Take a Best Buy store dict 
+        Return a string suitable for printing as output
+    """
+
+    opentime = get_todays_opening_time(store)
+    model_name = store['products'][0]['name']
+    store_name = store['name']
+    address = store['address']
+    city = store['city']
+    region = store['region']
+    distance = store['distance']
+
+    info_string = u"""
+        Model Name: {model_name}
+        Store Name: {store_name}
+           Address: {address}
+              City: {city}
+            Region: {region}""".format(model_name=model_name, store_name=store_name, address=address, city=city, region=region)
+    if opentime != '00:00':
+        info_string = info_string + u"\n          Opens At: {opentime}".format(opentime=opentime)
+    if zip_code:
+        info_string = info_string + u"\n  Miles from {zip_code}: {distance}".format(zip_code=zip_code, distance=distance)
+    info_string = info_string + u'\n------------------------------------------------------------------'
+
+    return info_string
+
+
+def main():
+    zip_code = '23223'
+    radius_in_miles = '500'
+    # test SKU - this is a Chromecast and should generally be in stock at a lot of places
+    # skus = ['4397400']
+    skus = ['5670003','5670100']
+    attribs_to_return = ['storeId','storeType','name','longName','address','city','region','phone','distance','products.name','products.sku','detailedHours']
+    format_type = 'json'   # can be json or xml
+    page_size = '10'
+
+    initial_url = build_initial_url(zip_code=zip_code, 
+                                    radius_in_miles=radius_in_miles, 
+                                    skus=skus, 
+                                    attribs_to_return=attribs_to_return, 
+                                    format_type=format_type, 
+                                    page_size=page_size
+                                    )
+    print 'Checking initial URL'
     result = requests.get(initial_url)
 
     if result.status_code == 200:
@@ -92,28 +147,11 @@ def main():
                 print('The options within 25 miles are:')
                 print('------------------------------------------------------------------')
                 for x in within_25_miles:
-
-                    opentime = get_todays_opening_time(x)
-
-                    print(u'    Switch Model: {prod_name}'.format(prod_name=x['products'][0]['name']))
-                    print('      Store Name: {storename}'.format(storename=x['name']))
-                    print('         Address: {state}'.format(state=x['address']))
-                    print('            City: {city}'.format(city=x['city']))
-                    print('           State: {region}'.format(region=x['region']))
-                    print('Miles from {zip}: {distance}'.format(zip=zip_code, distance=x['distance']))
-                    if opentime != '00:00':
-                        print('        Opens at: {opentime}'.format(opentime=opentime))
-                    print('------------------------------------------------------------------')
+                    store_info = get_store_info(x)
+                    print store_info
             else:
-                    opentime = get_todays_opening_time(x)
-
-                    print('   Closest is at: {storename}'.format(storename=closest_store['name']))
-                    print('         Address: {state}'.format(state=closest_store['address']))
-                    print('            City: {city}'.format(city=closest_store['city']))
-                    print('           State: {region}'.format(region=closest_store['region']))
-                    print('Miles from {zip}: {distance}'.format(zip=zip_code, distance=closest_store['distance']))
-                    if opentime != '00:00':
-                        print('        Opens at: {opentime}'.format(opentime=opentime))
+                    store_info = get_store_info(closest_store)
+                    print store_info
         else:
             print("No Best Buys with switches in stock!")
 
