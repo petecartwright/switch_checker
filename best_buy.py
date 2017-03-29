@@ -113,7 +113,7 @@ def main():
         best_buy_json = result.json()
         stores_with_product = best_buy_json['stores']
         num_pages = best_buy_json['totalPages']
-        print ('Found {num_pages} of results, checking...'.format(num_pages=num_pages))
+        print ('Found {num_pages} pages of results, checking...'.format(num_pages=num_pages))
         if num_pages > 1:
             # start with the second page and get the rest
             for x in range(2,num_pages+1):
@@ -147,10 +147,10 @@ def main():
                 print('The options within 25 miles are:')
                 print('------------------------------------------------------------------')
                 for x in within_25_miles:
-                    store_info = get_store_info(x)
+                    store_info = get_store_info(store=x, zip_code=zip_code)
                     print store_info
             else:
-                    store_info = get_store_info(closest_store)
+                    store_info = get_store_info(store=closest_store, zip_code=zip_code)
                     print store_info
         else:
             print("No Best Buys with switches in stock!")
