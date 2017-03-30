@@ -4,13 +4,81 @@ Module to check the Best Buy API for available Nintendo Switches,
 because I want to buy one and am too fussy to wait for shipping.
 
 """
-
+import os
 import datetime
+import sqlite3
+
 import requests
 
 from config import API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
+DATABASE_FILENAME = 'stores.db'
+
+##########################################
+######
+######  Database functions
+######
+##########################################
+
+
+def create_database_if_missing():
+    ''' If a file called stores.db doesn't exist, create it according to the schema below
+    '''
+    
+    # if the database exists, skip the rest
+    if os.path.isfile(DATABASE_FILENAME):
+        return
+
+    # will create the database if it doesn't exist
+    conn = sqlite3.connect(DATABASE_FILENAME)
+    c = conn.cursor()
+
+    table_creation_string = """ CREATE TABLE stores (
+                                date_checked      text,
+                                model_name        text,
+                                store_name        text,
+                                address           text,
+                                city              text,
+                                region            text,
+                                open_at           text,
+                                search_zip        text,
+                                distance_from_zip text
+                                )
+                             """
+    c.execute(table_creation_string)
+    
+    conn.commit()
+    conn.close()
+
+    return True
+
+
+def add_store_to_database(store, zip_code=None):
+    ''' Take a store dict and add it to the database with today's date
+    '''
+
+    today = datetime.datetime.today().strftime('%Y-%m-%d')
+    model_name = store['products'][0]['name']
+    store_name = store['name']
+    address = store['address']
+    city = store['city']
+    region = store['region']
+    opentime = get_todays_opening_time(store)
+    distance = store['distance']
+
+    conn = sqlite3.connect(DATABASE_FILENAME)
+    c = conn.cursor()
+
+    c.execute(u"""INSERT INTO stores (date_checked, model_name, store_name, address, city, region, open_at, search_zip, distance_from_zip)
+                  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
+               """, (today, model_name, store_name, address, city, region, opentime, zip_code, distance)
+             )
+
+    conn.commit()
+    conn.close()
+
+    return True
 
 def get_todays_opening_time(store):
     ''' take a best buy store dict
@@ -21,7 +89,7 @@ def get_todays_opening_time(store):
             return day['open']
  
     return '00:00'
- 
+
 
 def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format_type, page_size):
     """ Take parameters below and return the URL for the initial page of results
@@ -61,7 +129,7 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
     return initial_url
 
 
-def get_store_info(store, zip_code=None):
+def get_store_info_string(store, zip_code=None):
     """ Take a Best Buy store dict 
         Return a string suitable for printing as output
     """
@@ -116,18 +184,22 @@ def main():
         stores_with_product = best_buy_json['stores']
         num_pages = best_buy_json['totalPages']
         print ('Found {num_pages} pages of results, checking...'.format(num_pages=num_pages))
-        if num_pages > 1:
-            # start with the second page and get the rest
-            for i in range(2, num_pages+1):
-                print('Checking page {page_num}'.format(page_num=i))
-                page_url = initial_url + '&page={page}'.format(page=i)
-                page_result = requests.get(page_url)
-                if page_result.status_code == 200:
-                    page_json = page_result.json()
-                    page_stores = page_json['stores']
-                    stores_with_product.extend(page_stores)
+        # if num_pages > 1:
+        #     # start with the second page and get the rest
+        #     for i in range(2, num_pages+1):
+        #         print('Checking page {page_num}'.format(page_num=i))
+        #         page_url = initial_url + '&page={page}'.format(page=i)
+        #         page_result = requests.get(page_url)
+        #         if page_result.status_code == 200:
+        #             page_json = page_result.json()
+        #             page_stores = page_json['stores']
+        #             stores_with_product.extend(page_stores)
 
         stores_sorted_by_distance = sorted(stores_with_product, key=lambda k: k['distance'])
+
+        create_database_if_missing()
+        for s in stores_sorted_by_distance:
+            add_store_to_database(s)
 
         # if we have any stores returned, start getting the interesting ones
         if stores_sorted_by_distance:
@@ -149,10 +221,10 @@ def main():
                 print('The options within 25 miles are:')
                 print('------------------------------------------------------------------')
                 for store in within_25_miles:
-                    store_info = get_store_info(store=store, zip_code=zip_code)
+                    store_info = get_store_info_string(store=store, zip_code=zip_code)
                     print store_info
             else:
-                store_info = get_store_info(store=closest_store, zip_code=zip_code)
+                store_info = get_store_info_string(store=closest_store, zip_code=zip_code)
                 print store_info
         else:
             print("No Best Buys with switches in stock!")
