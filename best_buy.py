@@ -17,8 +17,6 @@ BASE_URL = 'https://api.bestbuy.com/v1/'
 script_path = os.path.dirname(os.path.realpath(__file__))
 DATABASE_FILENAME = os.path.join(script_path, 'stores.db')
 
-print DATABASE_FILENAME
-sys.exit()
 ##########################################
 ######
 ######  Database functions
