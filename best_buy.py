@@ -14,8 +14,11 @@ import requests
 from config import API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
-DATABASE_FILENAME = 'stores.db'
+script_path = os.path.dirname(os.path.realpath(__file__))
+DATABASE_FILENAME = os.path.join(script_path, 'stores.db')
 
+print DATABASE_FILENAME
+sys.exit()
 ##########################################
 ######
 ######  Database functions
