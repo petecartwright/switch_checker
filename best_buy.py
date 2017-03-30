@@ -193,16 +193,16 @@ def main():
         stores_with_product = best_buy_json['stores']
         num_pages = best_buy_json['totalPages']
         print ('Found {num_pages} pages of results, checking...'.format(num_pages=num_pages))
-        # if num_pages > 1:
-        #     # start with the second page and get the rest
-        #     for i in range(2, num_pages+1):
-        #         print('Checking page {page_num}'.format(page_num=i))
-        #         page_url = initial_url + '&page={page}'.format(page=i)
-        #         page_result = requests.get(page_url)
-        #         if page_result.status_code == 200:
-        #             page_json = page_result.json()
-        #             page_stores = page_json['stores']
-        #             stores_with_product.extend(page_stores)
+        if num_pages > 1:
+            # start with the second page and get the rest
+            for i in range(2, num_pages+1):
+                print('Checking page {page_num}'.format(page_num=i))
+                page_url = initial_url + '&page={page}'.format(page=i)
+                page_result = requests.get(page_url)
+                if page_result.status_code == 200:
+                    page_json = page_result.json()
+                    page_stores = page_json['stores']
+                    stores_with_product.extend(page_stores)
 
         stores_sorted_by_distance = sorted(stores_with_product, key=lambda k: k['distance'])
 
