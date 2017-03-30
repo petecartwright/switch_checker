@@ -4,9 +4,10 @@ Module to check the Best Buy API for available Nintendo Switches,
 because I want to buy one and am too fussy to wait for shipping.
 
 """
-import requests
-import json
+
 import datetime
+import requests
+
 from config import API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
@@ -93,8 +94,9 @@ def main():
     radius_in_miles = '500'
     # test SKU - this is a Chromecast and should generally be in stock at a lot of places
     # skus = ['4397400']
-    skus = ['5670003','5670100']
-    attribs_to_return = ['storeId','storeType','name','longName','address','city','region','phone','distance','products.name','products.sku','detailedHours']
+    skus = ['5670003', '5670100']
+    attribs_to_return = ['storeId', 'storeType', 'name', 'longName', 'address', 'city', 
+                         'region', 'phone', 'distance', 'products.name', 'products.sku', 'detailedHours']
     format_type = 'json'   # can be json or xml
     page_size = '10'
 
@@ -104,7 +106,7 @@ def main():
                                     attribs_to_return=attribs_to_return, 
                                     format_type=format_type, 
                                     page_size=page_size
-                                    )
+                                   )
     print 'Checking initial URL'
     result = requests.get(initial_url)
 
@@ -116,9 +118,9 @@ def main():
         print ('Found {num_pages} pages of results, checking...'.format(num_pages=num_pages))
         if num_pages > 1:
             # start with the second page and get the rest
-            for x in range(2,num_pages+1):
-                print('Checking page {page_num}'.format(page_num=x))
-                page_url = initial_url + '&page={page}'.format(page=x)
+            for i in range(2, num_pages+1):
+                print('Checking page {page_num}'.format(page_num=i))
+                page_url = initial_url + '&page={page}'.format(page=i)
                 page_result = requests.get(page_url)
                 if page_result.status_code == 200:
                     page_json = page_result.json()
@@ -146,12 +148,12 @@ def main():
             if  within_25_miles:
                 print('The options within 25 miles are:')
                 print('------------------------------------------------------------------')
-                for x in within_25_miles:
-                    store_info = get_store_info(store=x, zip_code=zip_code)
+                for store in within_25_miles:
+                    store_info = get_store_info(store=store, zip_code=zip_code)
                     print store_info
             else:
-                    store_info = get_store_info(store=closest_store, zip_code=zip_code)
-                    print store_info
+                store_info = get_store_info(store=closest_store, zip_code=zip_code)
+                print store_info
         else:
             print("No Best Buys with switches in stock!")
 
