@@ -80,16 +80,6 @@ def add_store_to_database(store, zip_code=None):
 
     return True
 
-def get_todays_opening_time(store):
-    ''' take a best buy store dict
-        return the time it opens today'''
-    today = datetime.datetime.today().strftime('%Y-%m-%d')
-    for day in store['detailedHours']:
-        if day['date'] == today:
-            return day['open']
- 
-    return '00:00'
-
 
 def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format_type, page_size):
     """ Take parameters below and return the URL for the initial page of results
@@ -127,6 +117,17 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
                   + api_key_string
 
     return initial_url
+
+
+def get_todays_opening_time(store):
+    ''' take a best buy store dict
+        return the time it opens today'''
+    today = datetime.datetime.today().strftime('%Y-%m-%d')
+    for day in store['detailedHours']:
+        if day['date'] == today:
+            return day['open']
+ 
+    return '00:00'
 
 
 def get_store_info_string(store, zip_code=None):
