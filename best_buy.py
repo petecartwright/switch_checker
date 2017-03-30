@@ -99,8 +99,7 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
 
     # this will only work if we have an API key
     if API_KEY == '':
-        print('No API key found. Register at http://developer.bestbuy.com')
-        print('and add your key to config.py')
+        print('No API key found. Register at http://developer.bestbuy.com and add your key to config.py')
         sys.exit()
 
     # start building the initial URL
