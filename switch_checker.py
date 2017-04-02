@@ -209,7 +209,7 @@ def main():
 
         create_database_if_missing()
         for s in stores_sorted_by_distance:
-            add_store_to_database(s)
+            add_store_to_database(s, zip_code)
 
         # if we have any stores returned, start getting the interesting ones
         if stores_sorted_by_distance:
