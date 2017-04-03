@@ -3,12 +3,39 @@
 </head>
 <body>
 
-{% for s in store_list %}
-
-    {{ s }}
-
-{% endfor %}
-
+There are {{ store_list | length }} Best Buy stores with Switches out there.<br>
+Go and get yours.
+<br>
+<br>
+<br>
+{% if closest_3 %}
+    The closest ones are:<br><br>
+    <div class='map-container'>   
+    {% for store in closest_3 %}
+        <div class='map'> 
+            <iframe
+            width="600"
+            height="450"
+            frameborder="0" style="border:0"
+            src="https://www.google.com/maps/embed/v1/directions?key={{ GOOGLE_API_KEY}}
+                 &origin=23223
+                 &destination={{ store['address'] | replace(' ','+') }},{{ store['region']}}">
+            </iframe><br>
+                
+            <div class='map-caption'
+               Model Name: {{ store['model_name'] }}<br>
+               Store Name: {{ store['store_name'] }}<br>
+                  Address: {{ store['address'] }}<br>
+                     City: {{ store['city'] }}<br>
+                   Region: {{ store['region'] }}<br>
+                      Zip: {{ store['search_zip'] }}<br>
+                 Opens At: {{ store['open_at'] }}<br>
+               Miles away: {{ store['distance_from_zip'] }}<br>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
 </body>
 </html>
 
