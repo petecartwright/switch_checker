@@ -172,7 +172,7 @@ def get_store_info_string(store, zip_code=None):
 def main():
 
     zip_code = '23223'
-    radius_in_miles = '500'
+    radius_in_miles = '5000'
     # test SKU - this is a Chromecast and should generally be in stock at a lot of places
     # skus = ['4397400']
     skus = ['5670003', '5670100']
@@ -237,6 +237,8 @@ def main():
                     store_info = get_store_info_string(store=store, zip_code=zip_code)
                     print store_info
             else:
+                print('The closest option is:')
+                print('------------------------------------------------------------------')
                 store_info = get_store_info_string(store=closest_store, zip_code=zip_code)
                 print store_info
         else:
