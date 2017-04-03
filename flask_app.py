@@ -6,7 +6,7 @@ import datetime
 
 from flask import Flask, render_template
 
-from config import ZIP_CODE_API_KEY, GOOGLE_MAPS_API_KEY
+from config import ZIP_CODE_API_KEY, GOOGLE_API_KEY
 
 app = Flask(__name__)
 
@@ -76,7 +76,7 @@ def bestbuy():
                            within_100_miles=within_100_miles,
                            within_500_miles=within_500_miles,
                            closest_3=closest_3,
-                           GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY
+                           GOOGLE_API_KEY=GOOGLE_API_KEY
                           )
 
 
