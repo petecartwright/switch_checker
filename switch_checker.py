@@ -173,7 +173,7 @@ def main():
     # test SKU - this is a Chromecast and should generally be in stock at a lot of places
     # skus = ['4397400']
     skus = ['5670003', '5670100']
-    attribs_to_return = ['storeId', 'storeType', 'name', 'longName', 'address', 'city', 
+    attribs_to_return = ['storeId', 'storeType', 'name', 'longName', 'address', 'city', 'postalCode', 
                          'region', 'phone', 'distance', 'products.name', 'products.sku', 'detailedHours']
     format_type = 'json'   # can be json or xml
     page_size = '10'
