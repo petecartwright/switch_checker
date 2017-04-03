@@ -56,7 +56,7 @@ def create_database_if_missing():
     return True
 
 
-def add_store_to_database(store, zip_code=None):
+def add_store_to_database(store):
     ''' Take a store dict and add it to the database with today's date
     '''
 
@@ -68,6 +68,7 @@ def add_store_to_database(store, zip_code=None):
     region = store['region']
     opentime = get_todays_opening_time(store)
     distance = store['distance']
+    zip_code = store['postalCode']
 
     conn = sqlite3.connect(DATABASE_FILENAME)
     c = conn.cursor()
@@ -150,13 +151,15 @@ def get_store_info_string(store, zip_code=None):
     city = store['city']
     region = store['region']
     distance = store['distance']
+    zip_code = store['postalCode']
 
     info_string = u"""
         Model Name: {model_name}
         Store Name: {store_name}
            Address: {address}
               City: {city}
-            Region: {region}""".format(model_name=model_name, store_name=store_name, address=address, city=city, region=region)
+               Zip: {zip_code}
+            Region: {region}""".format(model_name=model_name, store_name=store_name, address=address, city=city, zip_code=zip_code, region=region)
     if opentime != '00:00':
         info_string = info_string + u"\n          Opens At: {opentime}".format(opentime=opentime)
     if zip_code:
@@ -175,7 +178,7 @@ def main():
     skus = ['5670003', '5670100']
     attribs_to_return = ['storeId', 'storeType', 'name', 'longName', 'address', 'city', 'postalCode', 
                          'region', 'phone', 'distance', 'products.name', 'products.sku', 'detailedHours']
-    format_type = 'json'   # can be json or xml
+    format_type = 'json'
     page_size = '10'
 
     initial_url = build_initial_url(zip_code=zip_code, 
@@ -209,7 +212,7 @@ def main():
 
         create_database_if_missing()
         for s in stores_sorted_by_distance:
-            add_store_to_database(s, zip_code)
+            add_store_to_database(store=s)
 
         # if we have any stores returned, start getting the interesting ones
         if stores_sorted_by_distance:
