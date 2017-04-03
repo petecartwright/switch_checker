@@ -11,7 +11,7 @@ import sys
 
 import requests
 
-from config import API_KEY
+from config import BEST_BUY_API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -100,7 +100,7 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
     """
 
     # this will only work if we have an API key
-    if API_KEY == '':
+    if BEST_BUY_API_KEY == '':
         print('No API key found. Register at http://developer.bestbuy.com and add your key to config.py')
         sys.exit()
 
@@ -111,7 +111,7 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
     format_string = 'format={format_type}'.format(format_type=format_type)
     show_string = 'show='+','.join(attribs_to_return)
     page_size_string = 'pageSize={page_size}'.format(page_size=page_size)
-    api_key_string = 'apiKey={api_key}'.format(api_key=API_KEY) 
+    api_key_string = 'apiKey={api_key}'.format(api_key=BEST_BUY_API_KEY) 
 
     initial_url = BASE_URL \
                   + stores_function \
