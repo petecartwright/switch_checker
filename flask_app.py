@@ -5,6 +5,9 @@ import sqlite3
 import datetime
 
 from flask import Flask, render_template
+
+from config import ZIP_CODE_API_KEY, GOOGLE_MAPS_API_KEY
+
 app = Flask(__name__)
 
 
@@ -63,12 +66,19 @@ def bestbuy():
     within_25_miles = [x for x in store_list if float(x['distance_from_zip']) <= 25]
     within_50_miles = [x for x in store_list if float(x['distance_from_zip']) <= 50]
     within_100_miles = [x for x in store_list if float(x['distance_from_zip']) <= 100]
+    within_500_miles = [x for x in store_list if float(x['distance_from_zip']) <= 500]
+    closest_3 = within_500_miles[:3]
 
     return render_template('index.html',
                            store_list=store_list,
-                           within_25_miles=within_25_miles
+                           within_25_miles=within_25_miles,
+                           within_50_miles=within_50_miles,
+                           within_100_miles=within_100_miles,
+                           within_500_miles=within_500_miles,
+                           closest_3=closest_3,
+                           GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY
                           )
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',debug=True)
+    app.run(host='0.0.0.0', debug=True)
