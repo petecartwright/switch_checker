@@ -3,39 +3,39 @@
 </head>
 <body>
 
-There are {{ store_list | length }} Best Buy stores with Switches out there.<br>
-Go and get yours.
+<div class='main-text'> There are <span id='num-stores'></span> Best Buys with Switches in stock! </div>
 <br>
 <br>
 <br>
-{% if closest_3 %}
-    The closest ones are:<br><br>
-    <div class='map-container'>   
-    {% for store in closest_3 %}
-        <div class='map'> 
-            <iframe
-            width="600"
-            height="450"
-            frameborder="0" style="border:0"
-            src="https://www.google.com/maps/embed/v1/directions?key={{ GOOGLE_API_KEY}}
-                 &origin=23223
-                 &destination={{ store['address'] | replace(' ','+') }},{{ store['region']}}">
-            </iframe><br>
-                
-            <div class='map-caption'
-               Model Name: {{ store['model_name'] }}<br>
-               Store Name: {{ store['store_name'] }}<br>
-                  Address: {{ store['address'] }}<br>
-                     City: {{ store['city'] }}<br>
-                   Region: {{ store['region'] }}<br>
-                      Zip: {{ store['search_zip'] }}<br>
-                 Opens At: {{ store['open_at'] }}<br>
-               Miles away: {{ store['distance_from_zip'] }}<br>
-            </div>
-        </div>
-    {% endfor %}
-    </div>
-{% endif %}
+<br>
+<div id='full-list'></div>
+
+
+<script type="text/javascript">
+    
+    function update_view(store_data){
+        console.log('in update view');
+        document.getElementById("num-stores").textContent=store_data.length;
+        document.getElementById("full-list").textContent=JSON.stringify(store_data);
+
+    }
+
+    console.log('about to fetch');
+    
+    fetch('http://localhost:5000/stores')
+        .then(function(response){
+            console.log('getting the response');
+            return response.json();
+        }).then(function(store_data){
+            console.log('convered to json and updating view');
+            update_view(store_data)
+        });
+
+
+
+
+</script>
+
 </body>
 </html>
 
