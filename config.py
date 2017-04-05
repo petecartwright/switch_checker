@@ -1,5 +1,5 @@
 """
-    Config file for siwtch-checker
+    Config file for switch-checker
     
 """
 
