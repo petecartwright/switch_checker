@@ -100,7 +100,8 @@ def add_all_stores_to_database(stores):
     if newest_date != today:
         for s in stores:
             add_one_store_to_database(store=s)
-
+    else:
+        print 'already added to the database!'
 
 
 def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format_type, page_size):
@@ -182,7 +183,7 @@ def get_store_info_string(store, zip_code=None):
     if opentime != '00:00':
         info_string = info_string + u"\n          Opens At: {opentime}".format(opentime=opentime)
     if zip_code:
-        info_string = info_string + u"\n  Miles from {zip_code}: {distance}".format(zip_code=zip_code, distance=distance)
+        info_string = info_string + u"\n  Miles away: {distance}".format(distance=distance)
     info_string = info_string + u'\n------------------------------------------------------------------'
 
     return info_string
