@@ -84,11 +84,7 @@ function generateKeys(store_list){
 }
 
 
-var store_list;
-
-
-
-fetch('http://localhost:5000/stores').then(function (response) {
+fetch('/stores').then(function (response) {
       return response.json();
     }).then(function (stores) {
       var num_stores = stores.length;
