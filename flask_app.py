@@ -16,7 +16,7 @@ bp = Blueprint('bestbuy_blueprint', __name__, template_folder='templates')
 ########################################################
 ########################################################
 
-@bp.route("/bestbuy")
+@bp.route("/")
 def bestbuy():
     return render_template('index.html',
                            GOOGLE_API_KEY=GOOGLE_API_KEY,
@@ -32,7 +32,7 @@ def bestbuy():
 ########################################################
 ########################################################
 
-@bp.route("/bestbuy/stores")
+@bp.route("/stores")
 def stores():
     database_path = 'stores.db'
     today = datetime.datetime.today().strftime("%Y-%m-%d")
