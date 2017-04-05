@@ -1,6 +1,3 @@
-"""
-"""
-
 import sqlite3
 import datetime
 
@@ -49,4 +46,4 @@ def stores():
     return jsonify(store_list)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
