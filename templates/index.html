@@ -1,20 +1,45 @@
 <html>
 <head>
+
+<style media="screen" type="text/css">
+
+.main-text {
+    text-align: center;
+    padding-top: 40px;
+    padding-bottom: 100px;
+}
+
+span#num-stores {
+    font-size: 3em;
+}
+
+</style>
+
 </head>
 <body>
-
-<div class='main-text'> There are <span id='num-stores'></span> Best Buys with Switches in stock as of <span id='update-date'></span> </div>
-<div>Go get yours.</div>
-<br>
-<br>
-<br>
-<br>
+<div class='text-container'>
+<div class='main-text'> There are <span id='num-stores'></span> Best Buys with Switches in stock as of <span id='update-date'></span><br><br>Go get yours</div>
+</div>
 
 <div id='container'></div>
 <div id='full-list'></div>
 
+<!-- React -->
 <script src="https://unpkg.com/react@15/dist/react.js"></script>
 <script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
+
+<!-- Bootstrap + jQuery -->
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+<!-- for time formatting -->
+<script type="text/javascript" src="{{ url_for('bestbuy_blueprint.static', filename='js/moment.js') }}"></script>
+
+<!-- Our code -->
 <script type="text/javascript" src="{{ url_for('bestbuy_blueprint.static', filename='js/react_test.js') }}"></script>
 
 </body>

@@ -49,10 +49,10 @@ class BBStoreTable extends React.Component {
     });
     return React.createElement(
       'table',
-      null,
+      { className: 'table table-striped table-bordered' },
       React.createElement(
         'thead',
-        null,
+        { className: 'thead-inverse' },
         React.createElement(
           'tr',
           null,
@@ -95,27 +95,13 @@ class BBStoreTable extends React.Component {
 class FilterableBBStoreTable extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      filterText: '',
-      inStockOnly: false
-    };
-
-    this.handleFilterTextInput = this.handleFilterTextInput.bind(this);
   }
-
-  handleFilterTextInput(filterText) {
-    this.setState({
-      filterText: filterText
-    });
-  }
-
   render() {
     return React.createElement(
       'div',
       null,
       React.createElement(BBStoreTable, {
-        stores: this.props.stores,
-        filterText: this.state.filterText
+        stores: this.props.stores
       })
     );
   }
@@ -129,13 +115,31 @@ function generateKeys(store_list) {
   return store_list;
 }
 
+function update_intro_line(stores) {
+
+  // stores can have multiple models - we want the distinct number of stores
+  var unique_stores = new Set();
+
+  for (store of stores) {
+    // I know that I'm iterating over the entire list twice (here and in generateKeys)
+    // I'll fix it later when I'm smarter
+    unique_stores.add(store['store_name']);
+  }
+
+  var num_stores = unique_stores.size;
+  var date_checked = stores[0]['date_checked'];
+  var date_formatted = moment(date_checked).format('dddd MMMM Do, YYYY');
+
+  document.getElementById('num-stores').innerHTML = num_stores;
+  document.getElementById('update-date').innerHTML = date_formatted;
+}
+
+var store_list;
 fetch('/bestbuy/stores').then(function (response) {
   return response.json();
 }).then(function (stores) {
-  var num_stores = stores.length;
-  var date_checked = stores[0]['date_checked'];
-  document.getElementById('num-stores').innerHTML = num_stores;
-  document.getElementById('update-date').innerHTML = date_checked;
+  store_list = stores;
+  update_intro_line(stores);
   generateKeys(stores);
   ReactDOM.render(React.createElement(FilterableBBStoreTable, { stores: stores }), document.getElementById('container'));
 });
