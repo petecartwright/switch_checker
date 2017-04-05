@@ -62,7 +62,9 @@ def add_one_store_to_database(store):
     '''
 
     today = datetime.datetime.today().strftime('%Y-%m-%d')
-    model_name = store['products'][0]['name']
+
+    # one store may have multiple products - let's get all of them!
+
     store_name = store['name']
     address = store['address']
     city = store['city']
@@ -71,16 +73,19 @@ def add_one_store_to_database(store):
     distance = store['distance']
     zip_code = store['postalCode']
 
-    conn = sqlite3.connect(DATABASE_FILENAME)
-    c = conn.cursor()
+    for p in store['products']:
+        model_name = p['name']
 
-    c.execute(u"""INSERT INTO stores (date_checked, model_name, store_name, address, city, region, open_at, search_zip, distance_from_zip)
-                  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
-               """, (today, model_name, store_name, address, city, region, opentime, zip_code, distance)
-             )
+        conn = sqlite3.connect(DATABASE_FILENAME)
+        c = conn.cursor()
 
-    conn.commit()
-    conn.close()
+        c.execute(u"""INSERT INTO stores (date_checked, model_name, store_name, address, city, region, open_at, search_zip, distance_from_zip)
+                      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
+                   """, (today, model_name, store_name, address, city, region, opentime, zip_code, distance)
+                 )
+
+        conn.commit()
+        conn.close()
 
     return True
 

@@ -84,7 +84,7 @@ function generateKeys(store_list){
 }
 
 
-fetch('/stores').then(function (response) {
+fetch('/bestbuy/stores').then(function (response) {
       return response.json();
     }).then(function (stores) {
       var num_stores = stores.length;
