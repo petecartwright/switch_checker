@@ -1,12 +1,12 @@
 import sqlite3
 import datetime
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, Blueprint
 
 from config import ZIP_CODE_API_KEY, GOOGLE_API_KEY
 
-app = Flask(__name__)
 
+bp = Blueprint('bestbuy_blueprint', __name__, template_folder='templates')
 
 ########################################################
 ########################################################
@@ -16,7 +16,7 @@ app = Flask(__name__)
 ########################################################
 ########################################################
 
-@app.route("/")
+@bp.route("/bestbuy")
 def bestbuy():
     return render_template('index.html',
                            GOOGLE_API_KEY=GOOGLE_API_KEY,
@@ -32,7 +32,7 @@ def bestbuy():
 ########################################################
 ########################################################
 
-@app.route("/stores")
+@bp.route("/bestbuy/stores")
 def stores():
     database_path = 'stores.db'
     today = datetime.datetime.today().strftime("%Y-%m-%d")
@@ -45,5 +45,10 @@ def stores():
 
     return jsonify(store_list)
 
+app = Flask(__name__)
+app.register_blueprint(bp, url_prefix='/bestbuy')
+
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
+
