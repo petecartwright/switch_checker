@@ -1,0 +1,30 @@
+{
+  "name": "switch_checker",
+  "version": "0.0.1",
+  "description": "Check for in-store availability of Nintendo Switches via Best Buy's API",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src -d static/js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/petecartwright/switch_checker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/petecartwright/switch_checker/issues"
+  },
+  "homepage": "https://github.com/petecartwright/switch_checker#readme",
+  "dependencies": {
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-preset-env": "^1.3.2",
+    "babel-preset-es2015": "^6.24.0",
+    "babel-preset-react": "^6.23.0",
+    "babelify": "^7.3.0"
+  }
+}

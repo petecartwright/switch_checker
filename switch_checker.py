@@ -11,12 +11,12 @@ import sys
 
 import requests
 
-from config import API_KEY
+from config import BEST_BUY_API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
 script_path = os.path.dirname(os.path.realpath(__file__))
 DATABASE_FILENAME = os.path.join(script_path, 'stores.db')
-
+# DATABASE_FILENAME = 'stores.db'
 ##########################################
 ######
 ######  Database functions
@@ -37,15 +37,16 @@ def create_database_if_missing():
     c = conn.cursor()
 
     table_creation_string = """ CREATE TABLE stores (
-                                date_checked      text,
-                                model_name        text,
-                                store_name        text,
-                                address           text,
-                                city              text,
-                                region            text,
-                                open_at           text,
-                                search_zip        text,
-                                distance_from_zip text
+                                date_checked        text,
+                                model_name          text,
+                                store_name          text,
+                                address             text,
+                                city                text,
+                                store_zip           text,
+                                region              text,
+                                open_at             text,
+                                search_zip          text,
+                                distance_from_zip   text
                                 )
                              """
     c.execute(table_creation_string)
@@ -56,7 +57,7 @@ def create_database_if_missing():
     return True
 
 
-def add_store_to_database(store, zip_code=None):
+def add_one_store_to_database(store):
     ''' Take a store dict and add it to the database with today's date
     '''
 
@@ -68,6 +69,7 @@ def add_store_to_database(store, zip_code=None):
     region = store['region']
     opentime = get_todays_opening_time(store)
     distance = store['distance']
+    zip_code = store['postalCode']
 
     conn = sqlite3.connect(DATABASE_FILENAME)
     c = conn.cursor()
@@ -81,6 +83,25 @@ def add_store_to_database(store, zip_code=None):
     conn.close()
 
     return True
+
+
+def add_all_stores_to_database(stores):
+
+    create_database_if_missing()
+    # make sure we haven't aready updated the database today
+    sql = 'select max(date_checked) from stores;'
+    conn = sqlite3.connect(DATABASE_FILENAME)
+    c = conn.cursor()
+    newest_date = c.execute(sql).fetchone()[0]
+    conn.close()
+
+    today = datetime.datetime.today().strftime('%Y-%m-%d')
+
+    if newest_date != today:
+        for s in stores:
+            add_one_store_to_database(store=s)
+    else:
+        print 'already added to the database!'
 
 
 def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format_type, page_size):
@@ -99,7 +120,7 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
     """
 
     # this will only work if we have an API key
-    if API_KEY == '':
+    if BEST_BUY_API_KEY == '':
         print('No API key found. Register at http://developer.bestbuy.com and add your key to config.py')
         sys.exit()
 
@@ -110,7 +131,7 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
     format_string = 'format={format_type}'.format(format_type=format_type)
     show_string = 'show='+','.join(attribs_to_return)
     page_size_string = 'pageSize={page_size}'.format(page_size=page_size)
-    api_key_string = 'apiKey={api_key}'.format(api_key=API_KEY) 
+    api_key_string = 'apiKey={api_key}'.format(api_key=BEST_BUY_API_KEY) 
 
     initial_url = BASE_URL \
                   + stores_function \
@@ -150,17 +171,19 @@ def get_store_info_string(store, zip_code=None):
     city = store['city']
     region = store['region']
     distance = store['distance']
+    zip_code = store['postalCode']
 
     info_string = u"""
         Model Name: {model_name}
         Store Name: {store_name}
            Address: {address}
               City: {city}
-            Region: {region}""".format(model_name=model_name, store_name=store_name, address=address, city=city, region=region)
+               Zip: {zip_code}
+            Region: {region}""".format(model_name=model_name, store_name=store_name, address=address, city=city, zip_code=zip_code, region=region)
     if opentime != '00:00':
         info_string = info_string + u"\n          Opens At: {opentime}".format(opentime=opentime)
     if zip_code:
-        info_string = info_string + u"\n  Miles from {zip_code}: {distance}".format(zip_code=zip_code, distance=distance)
+        info_string = info_string + u"\n  Miles away: {distance}".format(distance=distance)
     info_string = info_string + u'\n------------------------------------------------------------------'
 
     return info_string
@@ -169,13 +192,13 @@ def get_store_info_string(store, zip_code=None):
 def main():
 
     zip_code = '23223'
-    radius_in_miles = '500'
+    radius_in_miles = '5000'
     # test SKU - this is a Chromecast and should generally be in stock at a lot of places
     # skus = ['4397400']
     skus = ['5670003', '5670100']
-    attribs_to_return = ['storeId', 'storeType', 'name', 'longName', 'address', 'city', 
+    attribs_to_return = ['storeId', 'storeType', 'name', 'longName', 'address', 'city', 'postalCode', 
                          'region', 'phone', 'distance', 'products.name', 'products.sku', 'detailedHours']
-    format_type = 'json'   # can be json or xml
+    format_type = 'json'
     page_size = '10'
 
     initial_url = build_initial_url(zip_code=zip_code, 
@@ -207,9 +230,7 @@ def main():
 
         stores_sorted_by_distance = sorted(stores_with_product, key=lambda k: k['distance'])
 
-        create_database_if_missing()
-        for s in stores_sorted_by_distance:
-            add_store_to_database(s, zip_code)
+        add_all_stores_to_database(stores_sorted_by_distance)
 
         # if we have any stores returned, start getting the interesting ones
         if stores_sorted_by_distance:
@@ -234,6 +255,8 @@ def main():
                     store_info = get_store_info_string(store=store, zip_code=zip_code)
                     print store_info
             else:
+                print('The closest option is:')
+                print('------------------------------------------------------------------')
                 store_info = get_store_info_string(store=closest_store, zip_code=zip_code)
                 print store_info
         else:
