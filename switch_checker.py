@@ -16,7 +16,7 @@ from config import BEST_BUY_API_KEY
 BASE_URL = 'https://api.bestbuy.com/v1/'
 script_path = os.path.dirname(os.path.realpath(__file__))
 DATABASE_FILENAME = os.path.join(script_path, 'stores.db')
-
+# DATABASE_FILENAME = 'stores.db'
 ##########################################
 ######
 ######  Database functions
@@ -37,15 +37,16 @@ def create_database_if_missing():
     c = conn.cursor()
 
     table_creation_string = """ CREATE TABLE stores (
-                                date_checked      text,
-                                model_name        text,
-                                store_name        text,
-                                address           text,
-                                city              text,
-                                region            text,
-                                open_at           text,
-                                search_zip        text,
-                                distance_from_zip text
+                                date_checked        text,
+                                model_name          text,
+                                store_name          text,
+                                address             text,
+                                city                text,
+                                store_zip           text,
+                                region              text,
+                                open_at             text,
+                                search_zip          text,
+                                distance_from_zip   text
                                 )
                              """
     c.execute(table_creation_string)
@@ -56,7 +57,7 @@ def create_database_if_missing():
     return True
 
 
-def add_store_to_database(store):
+def add_one_store_to_database(store):
     ''' Take a store dict and add it to the database with today's date
     '''
 
@@ -82,6 +83,24 @@ def add_store_to_database(store):
     conn.close()
 
     return True
+
+
+def add_all_stores_to_database(stores):
+
+    create_database_if_missing()
+    # make sure we haven't aready updated the database today
+    sql = 'select max(date_checked) from stores;'
+    conn = sqlite3.connect(DATABASE_FILENAME)
+    c = conn.cursor()
+    newest_date = c.execute(sql).fetchone()[0]
+    conn.close()
+
+    today = datetime.datetime.today().strftime('%Y-%m-%d')
+
+    if newest_date != today:
+        for s in stores:
+            add_one_store_to_database(store=s)
+
 
 
 def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format_type, page_size):
@@ -210,9 +229,7 @@ def main():
 
         stores_sorted_by_distance = sorted(stores_with_product, key=lambda k: k['distance'])
 
-        create_database_if_missing()
-        for s in stores_sorted_by_distance:
-            add_store_to_database(store=s)
+        add_all_stores_to_database(stores_sorted_by_distance)
 
         # if we have any stores returned, start getting the interesting ones
         if stores_sorted_by_distance:
