@@ -1,5 +1,5 @@
 import sqlite3
-import datetime
+import sys
 
 from flask import Flask, render_template, jsonify, Blueprint
 
@@ -35,8 +35,7 @@ def bestbuy():
 @bp.route("/stores")
 def stores():
     database_path = 'stores.db'
-    today = datetime.datetime.today().strftime("%Y-%m-%d")
-    select_string = "select * from stores where date_checked = '{today}'".format(today=today)
+    select_string = "select * from stores where date_checked = (select max(date_checked) from stores);"
     conn = sqlite3.connect(database_path)
     c = conn.cursor()
     results = c.execute(select_string)
@@ -50,5 +49,9 @@ app.register_blueprint(bp, url_prefix='/bestbuy')
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
-
+    if len(sys.argv) > 1 and sys.argv[1] == 'debug':
+        debug = True
+    else:
+        debug = False
+    app.run(host='0.0.0.0', debug=debug)
+    
