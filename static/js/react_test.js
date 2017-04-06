@@ -45,7 +45,9 @@ class BBStoreTable extends React.Component {
   render() {
     var rows = [];
     this.props.stores.forEach(store => {
-      if (store.region.indexOf(this.props.filterText) === -1) {
+      var region_lowercase = store.region.toLowerCase();
+      var filterText_lowercase = this.props.filterText.toLowerCase();
+      if (region_lowercase.indexOf(filterText_lowercase) === -1) {
         return;
       }
       rows.push(React.createElement(BBStoreRow, { store: store, key: store.reactKey }));
