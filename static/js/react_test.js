@@ -1,8 +1,7 @@
 class BBStoreRow extends React.Component {
 
   render() {
-    var model_name = this.props.store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '').replace('Joy-Con™', '');
-
+    var model_name = this.props.store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '').replace('Joy-Con™', '').replace('Neon Red', 'Red').replace('Neon Blue', 'Blue');
     var google_map_raw_url = `https://www.google.com/maps/place/${this.props.store.address},+${this.props.store.city},+${this.props.store.search_zip}`;
     var google_map_encoded_url = encodeURI(google_map_raw_url);
 
@@ -51,8 +50,18 @@ class BBStoreTable extends React.Component {
     };
   }
   render() {
+    var stores = this.props.stores;
+    if (this.state.sort_column) {
+      sortArrayByKey(stores, sort_column, sort_direction);
+    }
     var rows = [];
-    this.props.stores.forEach(store => {
+    stores.forEach(store => {
+      var region_lowercase = store.region.toLowerCase();
+      var filterText_lowercase = this.props.filterText.toLowerCase();
+      if (region_lowercase.indexOf(filterText_lowercase) === -1) {
+        // if there's no matching text, don't render the row
+        return;
+      }
       rows.push(React.createElement(BBStoreRow, { store: store, key: store.reactKey }));
     });
     return React.createElement(
@@ -100,19 +109,85 @@ class BBStoreTable extends React.Component {
   }
 }
 
+class SearchBar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
+  }
+
+  handleFilterTextInputChange(e) {
+    this.props.onFilterTextInput(e.target.value);
+  }
+
+  render() {
+    return React.createElement(
+      'form',
+      {
+        className: 'search-bar' },
+      React.createElement('input', {
+        type: 'text',
+        placeholder: 'Filter by State...',
+        value: this.props.filtertext,
+        onChange: this.handleFilterTextInputChange
+      })
+    );
+  }
+}
+
 class FilterableBBStoreTable extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { filterText: '' };
+    this.handleFilterTextInput = this.handleFilterTextInput.bind(this);
   }
+
+  handleFilterTextInput(filterText) {
+    this.setState({
+      filterText: filterText
+    });
+  }
+
   render() {
     return React.createElement(
       'div',
       null,
+      React.createElement(SearchBar, {
+        filterText: this.state.filterText,
+        onFilterTextInput: this.handleFilterTextInput
+      }),
       React.createElement(BBStoreTable, {
-        stores: this.props.stores
+        stores: this.props.stores,
+        filterText: this.state.filterText
       })
     );
   }
+}
+
+function sortArrayByKey(array, sort_column, direction = 'asc') {
+  // take an array, a sort column and an optional direction string 
+  array.sort(function (a, b) {
+    // return 1 if a shold be ranked higher than b, -1 otherwise
+    //   these are flipped if 'direction' is set to 'desc' 
+    var lower_a = a[sort_column].toLowerCase();
+    var lower_b = b[sort_column].toLowerCase();
+    var return_value;
+
+    if (lower_a < lower_b) {
+      return_value = -1;
+    } else if (lower_a > lower_b) {
+      return_value = 1;
+    } else {
+      return_value = 0;
+    }
+
+    if (direction === 'asc') {
+      return return_value;
+    } else if (direction === 'desc') {
+      return return_value * -1;
+    }
+
+    return return_value;
+  });
 }
 
 function generateKeys(store_list) {
@@ -142,11 +217,9 @@ function update_intro_line(stores) {
   document.getElementById('update-date').innerHTML = date_formatted;
 }
 
-var store_list;
 fetch('/bestbuy/stores').then(function (response) {
   return response.json();
 }).then(function (stores) {
-  store_list = stores;
   update_intro_line(stores);
   generateKeys(stores);
   ReactDOM.render(React.createElement(FilterableBBStoreTable, { stores: stores }), document.getElementById('container'));
