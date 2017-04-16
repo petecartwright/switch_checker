@@ -10,6 +10,7 @@ class BBStoreRow extends React.Component {
         <td>{this.props.store.city}</td>
         <td>{this.props.store.search_zip}</td>
         <td>{this.props.store.region}</td>
+        <td>{this.props.store.phone_number}</td>
       </tr>
     );
   }
@@ -38,6 +39,7 @@ class BBStoreTable extends React.Component {
             <th>City</th>
             <th>Zip</th>
             <th>State</th>
+            <th>Phone</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
