@@ -1,14 +1,10 @@
 class BBStoreRow extends React.Component {
 
   render() {
-<<<<<<< HEAD
-    var model_name = this.props.store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '').replace('Joy-Con™', '');
-=======
     var model_name = this.props.store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '').replace('Joy-Con™', '').replace('Neon Red', 'Red').replace('Neon Blue', 'Blue');
     var google_map_raw_url = `https://www.google.com/maps/place/${this.props.store.address},+${this.props.store.city},+${this.props.store.search_zip}`;
     var google_map_encoded_url = encodeURI(google_map_raw_url);
 
->>>>>>> master
     return React.createElement(
       'tr',
       null,
@@ -64,17 +60,16 @@ class BBStoreTable extends React.Component {
       sortArrayByKey(stores, sort_column, sort_direction);
     }
     var rows = [];
-<<<<<<< HEAD
-    this.props.stores.forEach(store => {
-=======
     stores.forEach(store => {
       var region_lowercase = store.region.toLowerCase();
-      var filterText_lowercase = this.props.filterText.toLowerCase();
-      if (region_lowercase.indexOf(filterText_lowercase) === -1) {
-        // if there's no matching text, don't render the row
-        return;
+      if (filtertext) {
+        var filterText_lowercase = this.props.filterText.toLowerCase();
+        if (region_lowercase.indexOf(filterText_lowercase) === -1) {
+          // if there's no matching text, don't render the row
+          return;
+        }
       }
->>>>>>> master
+
       rows.push(React.createElement(BBStoreRow, { store: store, key: store.reactKey }));
     });
     return React.createElement(
@@ -127,8 +122,6 @@ class BBStoreTable extends React.Component {
   }
 }
 
-<<<<<<< HEAD
-=======
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);
@@ -154,17 +147,32 @@ class SearchBar extends React.Component {
   }
 }
 
->>>>>>> master
 class FilterableBBStoreTable extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { filterText: '' };
+    this.handleFilterTextInput = this.handleFilterTextInput.bind(this);
   }
+
+  handleFilterTextInput(filterText) {
+    this.setState({
+      filterText: filterText
+    });
+  }
+
   render() {
     return React.createElement(
       'div',
       null,
+      React.createElement(SearchBar, {
+
+        filterText: this.state.filterText,
+        onFilterTextInput: this.handleFilterTextInput
+      }),
       React.createElement(BBStoreTable, {
-        stores: this.props.stores
+        stores: this.props.stores,
+        filterText: this.state.filterText
+
       })
     );
   }
@@ -224,11 +232,9 @@ function update_intro_line(stores) {
   document.getElementById('update-date').innerHTML = date_formatted;
 }
 
-var store_list;
 fetch('/bestbuy/stores').then(function (response) {
   return response.json();
 }).then(function (stores) {
-  store_list = stores;
   update_intro_line(stores);
   generateKeys(stores);
   ReactDOM.render(React.createElement(FilterableBBStoreTable, { stores: stores }), document.getElementById('container'));
