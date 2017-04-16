@@ -46,7 +46,8 @@ def create_database_if_missing():
                                 region              text,
                                 open_at             text,
                                 search_zip          text,
-                                distance_from_zip   text
+                                distance_from_zip   text,
+                                phone_number        text
                                 )
                              """
     c.execute(table_creation_string)
@@ -72,6 +73,7 @@ def add_one_store_to_database(store):
     opentime = get_todays_opening_time(store)
     distance = store['distance']
     zip_code = store['postalCode']
+    phone_number = store['phone']
 
     for p in store['products']:
         model_name = p['name']
@@ -79,9 +81,9 @@ def add_one_store_to_database(store):
         conn = sqlite3.connect(DATABASE_FILENAME)
         c = conn.cursor()
 
-        c.execute(u"""INSERT INTO stores (date_checked, model_name, store_name, address, city, region, open_at, search_zip, distance_from_zip)
-                      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?);
-                   """, (today, model_name, store_name, address, city, region, opentime, zip_code, distance)
+        c.execute(u"""INSERT INTO stores (date_checked, model_name, store_name, address, city, region, open_at, search_zip, distance_from_zip, phone_number)
+                      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                   """, (today, model_name, store_name, address, city, region, opentime, zip_code, distance, phone_number)
                  )
 
         conn.commit()
@@ -177,6 +179,7 @@ def get_store_info_string(store, zip_code=None):
     region = store['region']
     distance = store['distance']
     zip_code = store['postalCode']
+    phone_number = store['phone']
 
     info_string = u"""
         Model Name: {model_name}
@@ -184,7 +187,10 @@ def get_store_info_string(store, zip_code=None):
            Address: {address}
               City: {city}
                Zip: {zip_code}
-            Region: {region}""".format(model_name=model_name, store_name=store_name, address=address, city=city, zip_code=zip_code, region=region)
+             Phone: {phone}
+            Region: {region}""".format(model_name=model_name, store_name=store_name, 
+                                       address=address, city=city, zip_code=zip_code, 
+                                       phone=phone_number, region=region)
     if opentime != '00:00':
         info_string = info_string + u"\n          Opens At: {opentime}".format(opentime=opentime)
     if zip_code:

@@ -17,6 +17,7 @@ class BBStoreRow extends React.Component {
         <td>{this.props.store.city}</td>
         <td>{this.props.store.search_zip}</td>
         <td>{this.props.store.region}</td>
+        <td>{this.props.store.phone_number}</td>
       </tr>
     );
   }
@@ -38,11 +39,14 @@ class BBStoreTable extends React.Component {
     var rows = [];  
     stores.forEach((store) => {
       var region_lowercase = store.region.toLowerCase();
-      var filterText_lowercase = this.props.filterText.toLowerCase();
-      if (region_lowercase.indexOf(filterText_lowercase) === -1) {
-        // if there's no matching text, don't render the row
-        return;
+      if (filtertext){
+        var filterText_lowercase = this.props.filterText.toLowerCase();
+        if (region_lowercase.indexOf(filterText_lowercase) === -1) {
+          // if there's no matching text, don't render the row
+          return;
+      }
     }
+
       rows.push(<BBStoreRow store={store} key={store.reactKey} />);
     });
     return (
@@ -55,6 +59,7 @@ class BBStoreTable extends React.Component {
             <th>City</th>
             <th>Zip</th>
             <th>State</th>
+            <th>Phone</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
@@ -101,16 +106,19 @@ class FilterableBBStoreTable extends React.Component {
     });
    }
  
+
   render() {
     return (
       <div>
         <SearchBar
+
           filterText = {this.state.filterText}
           onFilterTextInput = {this.handleFilterTextInput}
         />
         <BBStoreTable
           stores={this.props.stores}
           filterText = {this.state.filterText}
+
         />
       </div>
     );
@@ -184,17 +192,4 @@ fetch('/bestbuy/stores').then(function (response) {
       generateKeys(stores);
       ReactDOM.render(React.createElement(FilterableBBStoreTable, { stores: stores }), document.getElementById('container'));
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
