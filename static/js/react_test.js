@@ -40,7 +40,11 @@ class BBStoreRow extends React.Component {
       React.createElement(
         'td',
         null,
-        this.props.store.phone_number
+        React.createElement(
+          'a',
+          { href: `tel:${this.props.store.phone_number}` },
+          this.props.store.phone_number
+        )
       )
     );
   }
