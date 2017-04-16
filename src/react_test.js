@@ -38,10 +38,12 @@ class BBStoreTable extends React.Component {
     var rows = [];  
     stores.forEach((store) => {
       var region_lowercase = store.region.toLowerCase();
-      var filterText_lowercase = this.props.filterText.toLowerCase();
-      if (region_lowercase.indexOf(filterText_lowercase) === -1) {
-        // if there's no matching text, don't render the row
-        return;
+      if (filtertext){
+        var filterText_lowercase = this.props.filterText.toLowerCase();
+        if (region_lowercase.indexOf(filterText_lowercase) === -1) {
+          // if there's no matching text, don't render the row
+          return;
+      }
     }
       rows.push(<BBStoreRow store={store} key={store.reactKey} />);
     });
