@@ -46,6 +46,7 @@ class BBStoreTable extends React.Component {
           return;
       }
     }
+
       rows.push(<BBStoreRow store={store} key={store.reactKey} />);
     });
     return (
@@ -105,16 +106,19 @@ class FilterableBBStoreTable extends React.Component {
     });
    }
  
+
   render() {
     return (
       <div>
         <SearchBar
+
           filterText = {this.state.filterText}
           onFilterTextInput = {this.handleFilterTextInput}
         />
         <BBStoreTable
           stores={this.props.stores}
           filterText = {this.state.filterText}
+
         />
       </div>
     );
@@ -188,17 +192,4 @@ fetch('/bestbuy/stores').then(function (response) {
       generateKeys(stores);
       ReactDOM.render(React.createElement(FilterableBBStoreTable, { stores: stores }), document.getElementById('container'));
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
