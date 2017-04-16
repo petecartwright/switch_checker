@@ -39,7 +39,7 @@ class BBStoreTable extends React.Component {
     var rows = [];  
     stores.forEach((store) => {
       var region_lowercase = store.region.toLowerCase();
-      if (filtertext){
+      if (this.props.filterText){
         var filterText_lowercase = this.props.filterText.toLowerCase();
         if (region_lowercase.indexOf(filterText_lowercase) === -1) {
           // if there's no matching text, don't render the row
