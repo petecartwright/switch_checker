@@ -1,7 +1,14 @@
 class BBStoreRow extends React.Component {
 
   render() {
+<<<<<<< HEAD
     var model_name = this.props.store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '').replace('Joy-Con™', '');
+=======
+    var model_name = this.props.store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '').replace('Joy-Con™', '').replace('Neon Red', 'Red').replace('Neon Blue', 'Blue');
+    var google_map_raw_url = `https://www.google.com/maps/place/${this.props.store.address},+${this.props.store.city},+${this.props.store.search_zip}`;
+    var google_map_encoded_url = encodeURI(google_map_raw_url);
+
+>>>>>>> master
     return React.createElement(
       'tr',
       null,
@@ -13,7 +20,11 @@ class BBStoreRow extends React.Component {
       React.createElement(
         'td',
         null,
-        this.props.store.address
+        React.createElement(
+          'a',
+          { href: google_map_encoded_url },
+          this.props.store.address
+        )
       ),
       React.createElement(
         'td',
@@ -48,8 +59,22 @@ class BBStoreTable extends React.Component {
     };
   }
   render() {
+    var stores = this.props.stores;
+    if (this.state.sort_column) {
+      sortArrayByKey(stores, sort_column, sort_direction);
+    }
     var rows = [];
+<<<<<<< HEAD
     this.props.stores.forEach(store => {
+=======
+    stores.forEach(store => {
+      var region_lowercase = store.region.toLowerCase();
+      var filterText_lowercase = this.props.filterText.toLowerCase();
+      if (region_lowercase.indexOf(filterText_lowercase) === -1) {
+        // if there's no matching text, don't render the row
+        return;
+      }
+>>>>>>> master
       rows.push(React.createElement(BBStoreRow, { store: store, key: store.reactKey }));
     });
     return React.createElement(
@@ -102,6 +127,34 @@ class BBStoreTable extends React.Component {
   }
 }
 
+<<<<<<< HEAD
+=======
+class SearchBar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
+  }
+
+  handleFilterTextInputChange(e) {
+    this.props.onFilterTextInput(e.target.value);
+  }
+
+  render() {
+    return React.createElement(
+      'form',
+      {
+        className: 'search-bar' },
+      React.createElement('input', {
+        type: 'text',
+        placeholder: 'Filter by State...',
+        value: this.props.filtertext,
+        onChange: this.handleFilterTextInputChange
+      })
+    );
+  }
+}
+
+>>>>>>> master
 class FilterableBBStoreTable extends React.Component {
   constructor(props) {
     super(props);
@@ -115,6 +168,33 @@ class FilterableBBStoreTable extends React.Component {
       })
     );
   }
+}
+
+function sortArrayByKey(array, sort_column, direction = 'asc') {
+  // take an array, a sort column and an optional direction string 
+  array.sort(function (a, b) {
+    // return 1 if a shold be ranked higher than b, -1 otherwise
+    //   these are flipped if 'direction' is set to 'desc' 
+    var lower_a = a[sort_column].toLowerCase();
+    var lower_b = b[sort_column].toLowerCase();
+    var return_value;
+
+    if (lower_a < lower_b) {
+      return_value = -1;
+    } else if (lower_a > lower_b) {
+      return_value = 1;
+    } else {
+      return_value = 0;
+    }
+
+    if (direction === 'asc') {
+      return return_value;
+    } else if (direction === 'desc') {
+      return return_value * -1;
+    }
+
+    return return_value;
+  });
 }
 
 function generateKeys(store_list) {
