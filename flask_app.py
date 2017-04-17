@@ -34,7 +34,7 @@ def bestbuy():
 
 @bp.route("/stores")
 def stores():
-    database_path = 'stores.db'
+    database_path = 'switch_checker/stores.db'
     select_string = "select * from stores where date_checked = (select max(date_checked) from stores);"
     conn = sqlite3.connect(database_path)
     c = conn.cursor()
