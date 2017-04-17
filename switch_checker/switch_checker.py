@@ -10,8 +10,8 @@ import sqlite3
 import sys
 
 import requests
-
-from config import BEST_BUY_API_KEY
+ 
+from .config import BEST_BUY_API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -24,16 +24,16 @@ DATABASE_FILENAME = os.path.join(script_path, 'stores.db')
 ##########################################
 
 
-def create_database_if_missing():
-    ''' If a file called stores.db doesn't exist, create it according to the schema below
+def create_database_if_missing(db_name):
+    ''' If a file with the passed name doesn't exist, create it according to the schema below
     '''
     
     # if the database exists, skip the rest
-    if os.path.isfile(DATABASE_FILENAME):
-        return
+    if os.path.isfile(db_name):
+        return False
 
     # will create the database if it doesn't exist
-    conn = sqlite3.connect(DATABASE_FILENAME)
+    conn = sqlite3.connect(db_name)
     c = conn.cursor()
 
     table_creation_string = """ CREATE TABLE stores (
@@ -94,7 +94,7 @@ def add_one_store_to_database(store):
 
 def add_all_stores_to_database(stores):
 
-    create_database_if_missing()
+    create_database_if_missing(DATABASE_FILENAME)
     # make sure we haven't aready updated the database today
     sql = 'select max(date_checked) from stores;'
     conn = sqlite3.connect(DATABASE_FILENAME)
