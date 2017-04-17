@@ -3,7 +3,7 @@ import sys
 
 from flask import Flask, render_template, jsonify, Blueprint
 
-from config import ZIP_CODE_API_KEY, GOOGLE_API_KEY
+from switch_checker.config import ZIP_CODE_API_KEY, GOOGLE_API_KEY
 
 
 bp = Blueprint('bestbuy_blueprint', __name__, template_folder='templates', static_folder='static')
