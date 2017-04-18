@@ -11,7 +11,7 @@ import sys
 
 import requests
  
-from .config import BEST_BUY_API_KEY
+from config import BEST_BUY_API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -160,7 +160,7 @@ def get_todays_opening_time(store):
         return the time it opens today'''
     today = datetime.datetime.today().strftime('%Y-%m-%d')
     for day in store['detailedHours']:
-        if day['date'] == today:
+        if day and day['date'] == today:
             return day['open']
  
     return '00:00'
