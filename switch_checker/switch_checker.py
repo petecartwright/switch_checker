@@ -64,8 +64,6 @@ def add_one_store_to_database(store):
 
     today = datetime.datetime.today().strftime('%Y-%m-%d')
 
-    # one store may have multiple products - let's get all of them!
-
     store_name = store['name']
     address = store['address']
     city = store['city']
@@ -75,6 +73,7 @@ def add_one_store_to_database(store):
     zip_code = store['postalCode']
     phone_number = store['phone']
 
+    # one store may have multiple products - let's get all of them!
     for p in store['products']:
         model_name = p['name']
 
