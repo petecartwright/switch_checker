@@ -12,12 +12,13 @@ class BBStoreRow extends React.Component {
       <tr>
         <td>{model_name}</td>
        {/* <td>{this.props.store.store_name}</td> */}
-        <td>
+        <td> 
           <a href={google_map_encoded_url}>{this.props.store.address}</a></td>
+        <td><a href={`tel:${this.props.store.phone_number}`}>{this.props.store.phone_number}</a></td>
         <td>{this.props.store.city}</td>
         <td>{this.props.store.search_zip}</td>
         <td>{this.props.store.region}</td>
-        <td><a href={`tel:${this.props.store.phone_number}`}>{this.props.store.phone_number}</a></td>
+        
       </tr>
     );
   }
@@ -56,10 +57,10 @@ class BBStoreTable extends React.Component {
             <th>Model</th>
           {/*  <th>Store Name</th> */}
             <th>Address</th>
+            <th>Phone</th>
             <th>City</th>
             <th>Zip</th>
             <th>State</th>
-            <th>Phone</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
