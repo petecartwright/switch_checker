@@ -25,6 +25,15 @@ class BBStoreRow extends React.Component {
       React.createElement(
         'td',
         null,
+        React.createElement(
+          'a',
+          { href: `tel:${this.props.store.phone_number}` },
+          this.props.store.phone_number
+        )
+      ),
+      React.createElement(
+        'td',
+        null,
         this.props.store.city
       ),
       React.createElement(
@@ -36,15 +45,6 @@ class BBStoreRow extends React.Component {
         'td',
         null,
         this.props.store.region
-      ),
-      React.createElement(
-        'td',
-        null,
-        React.createElement(
-          'a',
-          { href: `tel:${this.props.store.phone_number}` },
-          this.props.store.phone_number
-        )
       )
     );
   }
@@ -98,6 +98,11 @@ class BBStoreTable extends React.Component {
           React.createElement(
             'th',
             null,
+            'Phone'
+          ),
+          React.createElement(
+            'th',
+            null,
             'City'
           ),
           React.createElement(
@@ -109,11 +114,6 @@ class BBStoreTable extends React.Component {
             'th',
             null,
             'State'
-          ),
-          React.createElement(
-            'th',
-            null,
-            'Phone'
           )
         )
       ),
