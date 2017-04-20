@@ -10,7 +10,7 @@ import sqlite3
 import sys
 
 import requests
-
+ 
 from config import BEST_BUY_API_KEY
 
 BASE_URL = 'https://api.bestbuy.com/v1/'
@@ -24,16 +24,16 @@ DATABASE_FILENAME = os.path.join(script_path, 'stores.db')
 ##########################################
 
 
-def create_database_if_missing():
-    ''' If a file called stores.db doesn't exist, create it according to the schema below
+def create_database_if_missing(db_name):
+    ''' If a file with the passed name doesn't exist, create it according to the schema below
     '''
     
     # if the database exists, skip the rest
-    if os.path.isfile(DATABASE_FILENAME):
-        return
+    if os.path.isfile(db_name):
+        return False
 
     # will create the database if it doesn't exist
-    conn = sqlite3.connect(DATABASE_FILENAME)
+    conn = sqlite3.connect(db_name)
     c = conn.cursor()
 
     table_creation_string = """ CREATE TABLE stores (
@@ -48,7 +48,7 @@ def create_database_if_missing():
                                 search_zip          text,
                                 distance_from_zip   text,
                                 phone_number        text
-                                )
+                                );
                              """
     c.execute(table_creation_string)
     
@@ -58,13 +58,11 @@ def create_database_if_missing():
     return True
 
 
-def add_one_store_to_database(store):
+def add_one_store_to_database(db_name, store):
     ''' Take a store dict and add it to the database with today's date
     '''
 
     today = datetime.datetime.today().strftime('%Y-%m-%d')
-
-    # one store may have multiple products - let's get all of them!
 
     store_name = store['name']
     address = store['address']
@@ -75,10 +73,11 @@ def add_one_store_to_database(store):
     zip_code = store['postalCode']
     phone_number = store['phone']
 
+    # one store may have multiple products - let's get all of them!
     for p in store['products']:
         model_name = p['name']
 
-        conn = sqlite3.connect(DATABASE_FILENAME)
+        conn = sqlite3.connect(db_name)
         c = conn.cursor()
 
         c.execute(u"""INSERT INTO stores (date_checked, model_name, store_name, address, city, region, open_at, search_zip, distance_from_zip, phone_number)
@@ -92,12 +91,13 @@ def add_one_store_to_database(store):
     return True
 
 
-def add_all_stores_to_database(stores):
-
-    create_database_if_missing()
+def add_all_stores_to_database(db_name, stores):
+    """ Take a database, list of stores, and add them if we haven't added some already today
+    """ 
+    create_database_if_missing(db_name)
     # make sure we haven't aready updated the database today
     sql = 'select max(date_checked) from stores;'
-    conn = sqlite3.connect(DATABASE_FILENAME)
+    conn = sqlite3.connect(db_name)
     c = conn.cursor()
     newest_date = c.execute(sql).fetchone()[0]
     conn.close()
@@ -106,7 +106,7 @@ def add_all_stores_to_database(stores):
 
     if newest_date != today:
         for s in stores:
-            add_one_store_to_database(store=s)
+            add_one_store_to_database(db_name=db_name, store=s)
     else:
         print 'already added to the database!'
 
@@ -160,7 +160,7 @@ def get_todays_opening_time(store):
         return the time it opens today'''
     today = datetime.datetime.today().strftime('%Y-%m-%d')
     for day in store['detailedHours']:
-        if day['date'] == today:
+        if day and day['date'] == today:
             return day['open']
  
     return '00:00'
@@ -241,7 +241,7 @@ def main():
 
         stores_sorted_by_distance = sorted(stores_with_product, key=lambda k: k['distance'])
 
-        add_all_stores_to_database(stores_sorted_by_distance)
+        add_all_stores_to_database(DATABASE_FILENAME, stores_sorted_by_distance)
 
         # if we have any stores returned, start getting the interesting ones
         if stores_sorted_by_distance:
