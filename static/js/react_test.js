@@ -236,7 +236,7 @@ function update_intro_line(stores) {
   document.getElementById('update-date').innerHTML = date_formatted;
 }
 
-fetch('/bestbuy/stores').then(function (response) {
+fetch('/switch_checker/stores').then(function (response) {
   return response.json();
 }).then(function (stores) {
   update_intro_line(stores);
