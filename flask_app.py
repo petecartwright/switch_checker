@@ -18,7 +18,7 @@ bp = Blueprint('switch_checker_blueprint', __name__, template_folder='templates'
 
 @bp.route("/")
 def index():
-    return render_template('index_switch.html',
+    return render_template('index.html',
                            GOOGLE_API_KEY=GOOGLE_API_KEY,
                            ZIP_CODE_API_KEY=ZIP_CODE_API_KEY
                           )
