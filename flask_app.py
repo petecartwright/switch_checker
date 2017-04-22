@@ -6,7 +6,7 @@ from flask import Flask, render_template, jsonify, Blueprint
 from switch_checker.config import ZIP_CODE_API_KEY, GOOGLE_API_KEY
 
 
-bp = Blueprint('bestbuy_blueprint', __name__, template_folder='templates', static_folder='static')
+bp = Blueprint('switch_checker_blueprint', __name__, template_folder='templates', static_folder='static')
 
 ########################################################
 ########################################################
@@ -17,8 +17,8 @@ bp = Blueprint('bestbuy_blueprint', __name__, template_folder='templates', stati
 ########################################################
 
 @bp.route("/")
-def bestbuy():
-    return render_template('index.html',
+def index():
+    return render_template('index_switch.html',
                            GOOGLE_API_KEY=GOOGLE_API_KEY,
                            ZIP_CODE_API_KEY=ZIP_CODE_API_KEY
                           )
@@ -45,7 +45,7 @@ def stores():
     return jsonify(store_list)
 
 app = Flask(__name__)
-app.register_blueprint(bp, url_prefix='/bestbuy')
+app.register_blueprint(bp, url_prefix='/switch_checker')
 
 
 if __name__ == "__main__":
@@ -53,5 +53,5 @@ if __name__ == "__main__":
         debug = True
     else:
         debug = False
-    app.run(host='0.0.0.0', debug=debug)
+    app.run(host='0.0.0.0', port="5001", debug=debug)
     

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+<title>Switch Tracker</title> 
+<link rel="shortcut icon" href="{{ url_for('switch_checker_blueprint.static', filename='img/favicon.ico') }}">
 <style media="screen" type="text/css">
 
 .main-text {
@@ -18,10 +19,17 @@ form.search-bar {
     float: right;
 }
 
+.dev-logo {
+    text-align: center;
+    
+}
+
 </style>
 
 </head>
 <body>
+
+
 <div class='text-container'>
     <div class='main-text' id='top'> There are <span id='num-stores'></span> Best Buys with Switches in stock<a href='#' data-toggle="tooltip" data-placement="bottom" title="According to the Best Buy API as of 9AM. The inventory info only refreshes once a day, so maybe call first?">*</a> as of <span id='update-date'></span><br><br>Go get yrs</div>
 </div>
@@ -29,6 +37,7 @@ form.search-bar {
 <div id='container'></div>
 
 
+<div class="dev-logo"><small>Powered by the Best Buy Developer API</small><a href="https://developer.bestbuy.com"><img src="https://developer.bestbuy.com/images/bestbuy-logo.png" alt="Best Buy Developer API"/></a></div>
 
 
 <!-- React -->
@@ -38,9 +47,9 @@ form.search-bar {
 <!-- Tether for the tooltips -->
 <link 
     rel="stylesheet" 
-    href="{{ url_for('bestbuy_blueprint.static', filename='css/tether.min.css') }}"
+    href="{{ url_for('switch_checker_blueprint.static', filename='css/tether.min.css') }}"
     >
-<script type="text/javascript" src="{{ url_for('bestbuy_blueprint.static', filename='js/tether.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('switch_checker_blueprint.static', filename='js/tether.min.js') }}"></script>
 
 
 <!-- Bootstrap + jQuery -->
@@ -62,13 +71,13 @@ form.search-bar {
 
 
 <!-- for time formatting -->
-<script type="text/javascript" src="{{ url_for('bestbuy_blueprint.static', filename='js/moment.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('switch_checker_blueprint.static', filename='js/moment.js') }}"></script>
 
 <!-- Fetch polyfill for non Chrome/Firefox -->
-<script type="text/javascript" src="{{ url_for('bestbuy_blueprint.static', filename='js/fetch.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('switch_checker_blueprint.static', filename='js/fetch.js') }}"></script>
 
 <!-- Our code -->
-<script type="text/javascript" src="{{ url_for('bestbuy_blueprint.static', filename='js/react_test.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('switch_checker_blueprint.static', filename='js/react_test.js') }}"></script>
 
 <script type="text/javascript">
     
