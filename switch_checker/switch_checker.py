@@ -17,12 +17,16 @@ BASE_URL = 'https://api.bestbuy.com/v1/'
 script_path = os.path.dirname(os.path.realpath(__file__))
 DATABASE_FILENAME = os.path.join(script_path, 'stores.db')
 # DATABASE_FILENAME = 'stores.db'
-##########################################
-######
-######  Database functions
-######
-##########################################
 
+def get_bestbuy_api_key():
+    """ if we have one in the config module, return that
+        if not, check the environment variables
+        otherwise return nothing
+    """
+    if BEST_BUY_API_KEY:
+        return BEST_BUY_API_KEY
+    else:
+        return os.environ['BEST_BUY_API_KEY']
 
 def create_database_if_missing(db_name):
     ''' If a file with the passed name doesn't exist, create it according to the schema below
@@ -127,7 +131,8 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
     """
 
     # this will only work if we have an API key
-    if BEST_BUY_API_KEY == '':
+    api_key = get_bestbuy_api_key()
+    if api_key == '':
         print('No API key found. Register at http://developer.bestbuy.com and add your key to config.py')
         sys.exit()
 
@@ -138,7 +143,7 @@ def build_initial_url(zip_code, radius_in_miles, skus, attribs_to_return, format
     format_string = 'format={format_type}'.format(format_type=format_type)
     show_string = 'show='+','.join(attribs_to_return)
     page_size_string = 'pageSize={page_size}'.format(page_size=page_size)
-    api_key_string = 'apiKey={api_key}'.format(api_key=BEST_BUY_API_KEY) 
+    api_key_string = 'apiKey={api_key}'.format(api_key=api_key) 
 
     initial_url = BASE_URL \
                   + stores_function \
