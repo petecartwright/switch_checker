@@ -23,6 +23,10 @@ def index():
                            ZIP_CODE_API_KEY=ZIP_CODE_API_KEY
                           )
 
+@bp.route("/faq")
+def faq():
+    return render_template('faq.html')
+
 
 ########################################################
 ########################################################
