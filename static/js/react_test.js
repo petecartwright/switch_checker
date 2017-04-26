@@ -1,6 +1,7 @@
 class BBStoreRow extends React.Component {
 
   render() {
+    console.log('in BBStorerow render at ' + Date.now());
     var model_name = this.props.store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '').replace('Joy-Con™', '').replace('Neon Red', 'Red').replace('Neon Blue', 'Blue');
     var google_map_raw_url = `https://www.google.com/maps/place/${this.props.store.address},+${this.props.store.city},+${this.props.store.search_zip}`;
     var google_map_encoded_url = encodeURI(google_map_raw_url);
@@ -52,6 +53,7 @@ class BBStoreRow extends React.Component {
 
 class BBStoreTable extends React.Component {
   constructor() {
+    console.log('in BBStoreTable constructor at ' + Date.now());
     super();
     this.state = {
       sort_column: null,
@@ -59,6 +61,7 @@ class BBStoreTable extends React.Component {
     };
   }
   render() {
+    console.log('in BBStoreTable render at ' + Date.now());
     var stores = this.props.stores;
     if (this.state.sort_column) {
       sortArrayByKey(stores, sort_column, sort_direction);
@@ -128,15 +131,18 @@ class BBStoreTable extends React.Component {
 
 class SearchBar extends React.Component {
   constructor(props) {
+    console.log('in SearchBar constructor at ' + Date.now());
     super(props);
     this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
   }
 
   handleFilterTextInputChange(e) {
+    console.log('in SearchBar.handleFilterTextInputChange at ' + Date.now());
     this.props.onFilterTextInput(e.target.value);
   }
 
   render() {
+    console.log('in SearchBar render at ' + Date.now());
     return React.createElement(
       'form',
       {
@@ -153,18 +159,21 @@ class SearchBar extends React.Component {
 
 class FilterableBBStoreTable extends React.Component {
   constructor(props) {
+    console.log('in FilterableBBStoreTable constructor at ' + Date.now());
     super(props);
     this.state = { filterText: '' };
     this.handleFilterTextInput = this.handleFilterTextInput.bind(this);
   }
 
   handleFilterTextInput(filterText) {
+    console.log('in FilterableBBStoreTable handleFilterTextInput at ' + Date.now());
     this.setState({
       filterText: filterText
     });
   }
 
   render() {
+    console.log('in FilterableBBStoreTable render at ' + Date.now());
     return React.createElement(
       'div',
       null,
@@ -236,10 +245,19 @@ function update_intro_line(stores) {
   document.getElementById('update-date').innerHTML = date_formatted;
 }
 
+console.log('about to request data at ' + Date.now());
+
 fetch('/switch_checker/stores').then(function (response) {
+  console.log('got data at ' + Date.now());
   return response.json();
 }).then(function (stores) {
+  console.log('about to run update_intro_line() at ' + Date.now());
   update_intro_line(stores);
+  console.log('done with update_intro_line() at ' + Date.now());
+  console.log('');
+  console.log('about to run generateKeys() at ' + Date.now());
   generateKeys(stores);
+  console.log('done with generateKeys() at ' + Date.now());
+  console.log('handing off to React at ' + Date.now());
   ReactDOM.render(React.createElement(FilterableBBStoreTable, { stores: stores }), document.getElementById('container'));
 });
