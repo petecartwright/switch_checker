@@ -1,6 +1,7 @@
 class BBStoreRow extends React.Component {
 
   render() {
+    // format the model name so it doesn't take up a huge amount of space
     var model_name = this.props.store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '')
                                                 .replace('Joy-Con™', '')
                                                 .replace('Neon Red', 'Red')
@@ -11,9 +12,7 @@ class BBStoreRow extends React.Component {
     return (
       <tr>
         <td>{model_name}</td>
-       {/* <td>{this.props.store.store_name}</td> */}
-        <td> 
-          <a href={google_map_encoded_url}>{this.props.store.address}</a></td>
+        <td><a href={google_map_encoded_url}>{this.props.store.address}</a></td>
         <td><a href={`tel:${this.props.store.phone_number}`}>{this.props.store.phone_number}</a></td>
         <td>{this.props.store.city}</td>
         <td>{this.props.store.search_zip}</td>
@@ -24,19 +23,13 @@ class BBStoreRow extends React.Component {
   }
 }
 
+
 class BBStoreTable extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      sort_column: null,
-      sort_direction: 'asc'
-    };
+  constructor(props) {
+    super(props);
   }
   render() {
     var stores = this.props.stores;
-    if (this.state.sort_column){
-      sortArrayByKey(stores, sort_column, sort_direction);
-    }
     var rows = [];  
     stores.forEach((store) => {
       var region_lowercase = store.region.toLowerCase();
@@ -45,17 +38,16 @@ class BBStoreTable extends React.Component {
         if (region_lowercase.indexOf(filterText_lowercase) === -1) {
           // if there's no matching text, don't render the row
           return;
+        }
       }
-    }
-
       rows.push(<BBStoreRow store={store} key={store.reactKey} />);
     });
+
     return (
       <table className='table table-striped table-bordered'>
         <thead className='thead-inverse'>
           <tr>
             <th>Model</th>
-          {/*  <th>Store Name</th> */}
             <th>Address</th>
             <th>Phone</th>
             <th>City</th>
@@ -72,10 +64,13 @@ class BBStoreTable extends React.Component {
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);
+    // so the handleFilterTextInputChange function has access to 'this'
     this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
   }
 
   handleFilterTextInputChange(e) {
+    // when we get a change in the text, tell the FilterableBBStoreTable
+    // via the function that was passed in the props
     this.props.onFilterTextInput(e.target.value);
   }
 
@@ -146,11 +141,8 @@ function sortArrayByKey(array, sort_column, direction='asc') {
       return_value = 0;
     }
 
-    if (direction === 'asc') {
-      return return_value;
-    } else if (direction === 'desc') {
-      return return_value * -1;
-    }
+    // if the 'direction' is set to desc, we return the inverse
+    return_value = (direction === 'asc') ? return_value : return_value * -1;
 
     return return_value;
   })
@@ -167,6 +159,8 @@ function generateKeys(store_list){
 
 
 function update_intro_line(stores) {
+  // update the text on the main page that 
+  // tells us how many stores have switches and the date
 
   // stores can have multiple models - we want the distinct number of stores
   var unique_stores = new Set();
@@ -185,6 +179,7 @@ function update_intro_line(stores) {
   document.getElementById('update-date').innerHTML = date_formatted;
 
 }
+
 
 fetch('/switch_checker/stores').then(function (response) {
       return response.json();
