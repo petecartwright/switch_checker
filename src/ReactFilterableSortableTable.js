@@ -1,15 +1,26 @@
 class TableRow extends React.Component {
 
+  createMarkup(cell_data) {
+    return ;
+  }
+
   render() {
+    var cells = [];
+    
+    this.props.column_names.forEach( (column_name) => {
+      if (column_name === 'key') {
+        return;
+      }
+      // this is a bad solution, but I'm doing it here beause I trust
+      // the incoming data. React won't render HTML unless I escape it
+      // like this, and I'd like to be able to set that in advance  
+      var markup = {'__html': this.props.table_row_data[column_name]};
+      cells.push(<td key={column_name} dangerouslySetInnerHTML={markup}></td>);
+      
+    });
     return (
       <tr>
-        <td>{model_name}</td>
-        <td><a href={google_map_encoded_url}>{this.props.store.address}</a></td>
-        <td><a href={`tel:${this.props.store.phone_number}`}>{this.props.store.phone_number}</a></td>
-        <td>{this.props.store.city}</td>
-        <td>{this.props.store.search_zip}</td>
-        <td>{this.props.store.region}</td>
-        
+        {cells}
       </tr>
     );
   }
@@ -17,32 +28,102 @@ class TableRow extends React.Component {
 
 class FilterRow extends React.Component {
 
-}
-
-class SearchBar extends React.Component {
   constructor(props) {
-    super(props);
-    // so the handleFilterTextInputChange function has access to 'this'
-    this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
+    super(props);      
+    this.onFilterTextInputChange = this.onFilterTextInputChange.bind(this);
   }
 
-  handleFilterTextInputChange(e) {
+  onFilterTextInputChange(e) {
     // when we get a change in the text, tell the FilterableBBStoreTable
     // via the function that was passed in the props
-    this.props.onFilterTextInput(e.target.value);
+    var filter_column = e.target.id.replace('filter-','');
+    var filter_text = e.target.value;
+    this.props.handleFilterTextInput(filter_column, filter_text);
   }
 
   render() {
+
+    var filter_cells = [];
+    this.props.column_names.forEach((column_name) => {
+      if (column_name === 'key') {
+        return;
+      }
+      var cell_value = (column_name === this.props.filter_column)
+                          ? this.props.filter_text
+                          :''
+                          ;
+      filter_cells.push(<td key={column_name}>
+                          <form>
+                            <input 
+                              id={'filter-'+column_name}
+                              type='text'
+                              placeholder='Filter...'
+                              value={cell_value}
+                              onChange={this.onFilterTextInputChange}
+                            />
+                          </form>
+                        </td>)
+    });
+
     return (
-      <form
-        className='search-bar'>
-        <input 
-          type='text'
-          placeholder='Filter by State...'
-          value={this.props.filtertext}
-          onChange={this.handleFilterTextInputChange}
-        />
-      </form>
+      <tr>
+        {filter_cells}
+      </tr>
+    )
+  }
+}
+
+
+class SortableTableHeaderCell extends React.Component {
+  constructor(props){
+    super(props);
+    this.onSortColumnClick = this.onSortColumnClick.bind(this);
+  }
+
+  onSortColumnClick(e){
+    var new_sort_column = this.props.column_name;
+    this.props.handleSortColumnInput(new_sort_column);
+  }
+
+  render(){
+
+    var cell_contents = (this.props.sort_column === this.props.column_name)
+                          ? (this.props.sort_direction === 1)
+                            ? this.props.column_name + ' ▲'
+                            : this.props.column_name + ' ▼' 
+                          : this.props.column_name
+                            ;
+
+    return(<th onClick={this.onSortColumnClick}>{cell_contents}</th>)
+  }
+}
+
+
+class SortableTableHeader extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    var cells = [];
+    this.props.column_names.forEach((column_name) => {
+        // don't render the key column
+      if (column_name === 'key') {
+        return;
+      }
+      cells.push(<SortableTableHeaderCell
+                    column_name = {column_name}
+                    key = {column_name}
+                    handleSortColumnInput = {this.props.handleSortColumnInput}
+                  />)
+                ;
+    });
+    return(
+        <thead className='thead-inverse'>
+          <tr>
+            {cells}
+          </tr>
+        </thead>
     )
   }
 }
@@ -58,22 +139,23 @@ class FilterableSortableTable extends React.Component {
                   sort_direction: 1
                  };
     this.handleFilterTextInput = this.handleFilterTextInput.bind(this);
+    this.handleSortColumnInput = this.handleSortColumnInput.bind(this);
    }
  
 
-   handleFilterTextInput(filter_column, filter_text) {
+  handleFilterTextInput(filter_column, filter_text) {
     this.setState({
       filter_text: filter_text,
       filter_column: filter_column
     });
-   }
+  }
 
-   handleSortColumnInput(sort_column) {
+  handleSortColumnInput(sort_column) {
 
     // if this column is already being sorted, this should flip the sort order
     // if not, default to 1 (ascending)
     var new_sort_direction = (this.state.sort_column === sort_column) 
-                                ? sort_direction * -1
+                                ? this.state.sort_direction * -1
                                 : 1
                                 ;
     this.setState({
@@ -83,20 +165,53 @@ class FilterableSortableTable extends React.Component {
    } 
 
   render() {
+
+      // if there's a sort column set, sort the list!
+      if (this.state.sort_direction) {
+        // I probably shouldn't be sorting the props directly.
+        sortArrayByKey(this.props.table_data, this.state.sort_column, this.state.sort_direction);
+      }
+
+      // we'll be using the list of columns to build the header and filter row
+      var column_names = Object.keys(this.props.table_data[0]);
       var rows = [];  
       this.props.table_data.forEach((table_row_data) => {
-        rows.push(<TableRow table_row_data={table_row_data} key={table_row_data.key} />);
+        if (this.state.filter_text){
+          var filter_text_lowercase = this.state.filter_text.toLowerCase();
+          var cell_value_lowercase = table_row_data[this.state.filter_column].toLowerCase();
+          if (cell_value_lowercase.indexOf(filter_text_lowercase) === -1) {
+            // if there's no matching text, don't render the row
+            return;
+          }
+        }
+        rows.push(<TableRow 
+                    column_names = {column_names} 
+                    table_row_data={table_row_data} 
+                    key={table_row_data.key} 
+                  />);
       });
-      <div>
-        <table className='table table-striped table-bordered'>
-          {/*<SortableTableHeader dlajsdnflaksdjnf /> */}
-          <tbody>
-            {/* <FilterRow asdklfjansdlfkjansdf/> */}
-            {rows}
-          </tbody>
-        </table>
-      </div>
-    );
+
+      return( 
+            <div>
+              <table className='table table-striped table-bordered'>
+                <SortableTableHeader 
+                  column_names = {column_names}
+                  sort_column = {this.state.sort_column}
+                  sort_direction = {this.state.sort_direction}
+                  handleSortColumnInput = {this.handleSortColumnInput} 
+                /> 
+                <tbody>
+                  <FilterRow 
+                    column_names={column_names}
+                    filter_column={this.state.filter_column}
+                    filter_text={this.state.filter_text}
+                    handleFilterTextInput={this.handleFilterTextInput}
+                  />
+                  {rows}
+                </tbody>
+              </table>
+            </div>
+            )
   }
 }
 
@@ -120,23 +235,8 @@ class FilterableSortableTable extends React.Component {
 //       rows.push(<BBStoreRow store={store} key={store.reactKey} />);
 //     });
 
-//     return (
-//       <table className='table table-striped table-bordered'>
-//         <thead className='thead-inverse'>
-//           <tr>
-//             <th>Model</th>
-//             <th>Address</th>
-//             <th>Phone</th>
-//             <th>City</th>
-//             <th>Zip</th>
-//             <th>State</th>
-//           </tr>
-//         </thead>
-//         <tbody>{rows}</tbody>
-//       </table>
-//     );
-//   }
-// }
+
+
 
 
 function sortArrayByKey(array, sort_column, sort_direction) {
@@ -145,8 +245,8 @@ function sortArrayByKey(array, sort_column, sort_direction) {
   array.sort(function(a, b){
     // return 1 if a shold be ranked higher than b, -1 otherwise
     //   these are flipped if 'direction' is set to 'desc' 
-    var lower_a = (typeOf a[sort_column] === 'string') ? a[sort_column].toLowerCase() : a[sort_column];
-    var lower_b = (typeOf b[sort_column] === 'string') ? b[sort_column].toLowerCase() : b[sort_column];
+    var lower_a = (typeof a[sort_column] === 'string') ? a[sort_column].toLowerCase() : a[sort_column];
+    var lower_b = (typeof b[sort_column] === 'string') ? b[sort_column].toLowerCase() : b[sort_column];
     
     // if a<b, return 1, elif b>a return 1, else 0
     var return_value = (lower_a < lower_b)
@@ -203,16 +303,10 @@ function cleanUpStoreData(stores){
 }
 
 
-function generateKeys(store_list){
-  // React needs a unique key for each row in the table. This generates one!
-  store_list.forEach(function(currentValue, index, array) {
-    store_list[index]['reactKey'] = index;
-  })
-  return store_list
-}
-
 
 function update_intro_line(stores) {
+  // TODO - no reason this isn't a React Component
+
   // update the text on the main page that 
   // tells us how many stores have switches and the date
 
@@ -239,7 +333,7 @@ fetch('/switch_checker/stores').then(function (response) {
       return response.json();
     }).then(function (stores) {
       update_intro_line(stores);
-      generateKeys(stores);
-      ReactDOM.render(React.createElement(FilterableSortableTable, { table_data: stores }), document.getElementById('container'));
+      var cleaned_stores = cleanUpStoreData(stores)
+      ReactDOM.render(React.createElement(FilterableSortableTable, { table_data: cleaned_stores }), document.getElementById('container'));
     });
 
