@@ -216,27 +216,6 @@ class FilterableSortableTable extends React.Component {
 }
 
 
-// class BBStoreTable extends React.Component {
-//   constructor(props) {
-//     super(props);
-//   }
-//   render() {
-    
-//     var rows = [];  
-//     this.props.table_data.forEach((store) => {
-//       var region_lowercase = store.region.toLowerCase();
-//       if (this.props.filterText){
-//         var filterText_lowercase = this.props.filterText.toLowerCase();
-//         if (region_lowercase.indexOf(filterText_lowercase) === -1) {
-//           // if there's no matching text, don't render the row
-//           return;
-//         }
-//       }
-//       rows.push(<BBStoreRow store={store} key={store.reactKey} />);
-//     });
-
-
-
 
 
 function sortArrayByKey(array, sort_column, sort_direction) {
@@ -261,79 +240,4 @@ function sortArrayByKey(array, sort_column, sort_direction) {
     return return_value;
   })
 }
-
-
-
-
-
-
-
-
-
-
-// TODO: move everything below this to the main file so we can generalize better
-
-function cleanUpStoreData(stores){
-  // update the model name
-  // generate a google maps link + a href
-  // generate a phone href
-  // put the columns in the right order with the right names
-  var cleaned_stores = [];
-
-  stores.forEach((store, index) => {
-
-    var model_name = store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '')
-                                     .replace('Joy-Con™', '')
-                                     .replace('Neon Red', 'Red')
-                                     .replace('Neon Blue', 'Blue');
-
-    var google_map_raw_url = `https://www.google.com/maps/place/${store.address},+${store.city},+${store.search_zip}`;
-    var google_map_encoded_url = encodeURI(google_map_raw_url);
-
-    cleaned_stores.push({'Model': model_name,
-                         'Address': `<a href=${google_map_encoded_url}>${store.address}</a>`,
-                         'Phone': `<a href='tel:${store.phone_number}'>${store.phone_number}</a>`,
-                         'City': store.city,
-                         'Zip': store.search_zip,
-                         'State': store.region,
-                         'key': index.toString()
-                         });
-  });
-  return cleaned_stores;
-}
-
-
-
-function update_intro_line(stores) {
-  // TODO - no reason this isn't a React Component
-
-  // update the text on the main page that 
-  // tells us how many stores have switches and the date
-
-  // stores can have multiple models - we want the distinct number of stores
-  var unique_stores = new Set();
-
-  for (store of stores){
-    // I know that I'm iterating over the entire list twice (here and in generateKeys)
-    // I'll fix it later when I'm smarter
-    unique_stores.add(store['store_name']);
-  }
-
-  var num_stores = unique_stores.size;
-  var date_checked = stores[0]['date_checked'];
-  var date_formatted = moment(date_checked).format('dddd MMMM Do, YYYY')
-  
-  document.getElementById('num-stores').innerHTML = num_stores;
-  document.getElementById('update-date').innerHTML = date_formatted;
-
-}
-
-
-fetch('/switch_checker/stores').then(function (response) {
-      return response.json();
-    }).then(function (stores) {
-      update_intro_line(stores);
-      var cleaned_stores = cleanUpStoreData(stores)
-      ReactDOM.render(React.createElement(FilterableSortableTable, { table_data: cleaned_stores }), document.getElementById('container'));
-    });
 

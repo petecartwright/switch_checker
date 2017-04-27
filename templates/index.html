@@ -100,6 +100,74 @@ form.search-bar {
       $('[data-toggle="tooltip"]').tooltip()
     })
 
+    // load and process the data from the API and pass to the React component
+
+    function cleanUpStoreData(stores){
+      // update the model name
+      // generate a google maps link + a href
+      // generate a phone href
+      // put the columns in the right order with the right names
+      var cleaned_stores = [];
+
+      stores.forEach((store, index) => {
+
+        var model_name = store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '')
+                                         .replace('Joy-Con™', '')
+                                         .replace('Neon Red', 'Red')
+                                         .replace('Neon Blue', 'Blue');
+
+        var google_map_raw_url = `https://www.google.com/maps/place/${store.address},+${store.city},+${store.search_zip}`;
+        var google_map_encoded_url = encodeURI(google_map_raw_url);
+
+        cleaned_stores.push({'Model': model_name,
+                             'Address': `<a href=${google_map_encoded_url}>${store.address}</a>`,
+                             'Phone': `<a href='tel:${store.phone_number}'>${store.phone_number}</a>`,
+                             'City': store.city,
+                             'Zip': store.search_zip,
+                             'State': store.region,
+                             'key': index.toString()
+                             });
+      });
+      return cleaned_stores;
+    }
+
+
+
+    function update_intro_line(stores) {
+      // TODO - no reason this isn't a React Component
+
+      // update the text on the main page that 
+      // tells us how many stores have switches and the date
+
+      // stores can have multiple models - we want the distinct number of stores
+      var unique_stores = new Set();
+
+      for (store of stores){
+        // I know that I'm iterating over the entire list twice (here and in generateKeys)
+        // I'll fix it later when I'm smarter
+        unique_stores.add(store['store_name']);
+      }
+
+      var num_stores = unique_stores.size;
+      var date_checked = stores[0]['date_checked'];
+      var date_formatted = moment(date_checked).format('dddd MMMM Do, YYYY')
+      
+      document.getElementById('num-stores').innerHTML = num_stores;
+      document.getElementById('update-date').innerHTML = date_formatted;
+
+    }
+
+
+    fetch('/switch_checker/stores').then(function (response) {
+          return response.json();
+        }).then(function (stores) {
+          update_intro_line(stores);
+          var cleaned_stores = cleanUpStoreData(stores)
+          ReactDOM.render(React.createElement(FilterableSortableTable, { table_data: cleaned_stores }), document.getElementById('container'));
+        });
+
+
+
 </script>
 
 <!-- Google Analytics  -->
