@@ -167,7 +167,7 @@ class FilterableSortableTable extends React.Component {
   render() {
 
       // if there's a sort column set, sort the list!
-      if (this.state.sort_direction) {
+      if (this.state.sort_column) {
         // I probably shouldn't be sorting the props directly.
         sortArrayByKey(this.props.table_data, this.state.sort_column, this.state.sort_direction);
       }
