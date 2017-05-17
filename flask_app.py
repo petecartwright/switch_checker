@@ -48,6 +48,19 @@ def stores():
 
     return jsonify(store_list)
 
+
+@bp.route("/stores/all")
+def all_stores():
+    database_path = 'switch_checker/stores.db'
+    select_string = "select * from stores;"
+    conn = sqlite3.connect(database_path)
+    c = conn.cursor()
+    results = c.execute(select_string)
+    # put the results into an easier-to-work with dict
+    store_list = [dict((results.description[i][0], value) for i, value in enumerate(row)) for row in results.fetchall()]
+
+    return jsonify(store_list)
+
 app = Flask(__name__)
 app.register_blueprint(bp, url_prefix='/switch_checker')
 
