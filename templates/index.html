@@ -112,9 +112,11 @@ form.search-bar {
       stores.forEach((store, index) => {
 
         var model_name = store.model_name.replace('Nintendo - Switch™ 32GB Console - ', '')
+                                         .replace('Nintendo - Switch Console Neon Joycons - ','')
                                          .replace('Joy-Con™', '')
                                          .replace('Neon Red', 'Red')
-                                         .replace('Neon Blue', 'Blue');
+                                         .replace('Neon Blue', 'Blue').
+                                         .;
 
         var google_map_raw_url = `https://www.google.com/maps/place/${store.address},+${store.city},+${store.search_zip}`;
         var google_map_encoded_url = encodeURI(google_map_raw_url);
