@@ -1,13 +1,13 @@
+
 import sqlite3
 import sys
 
 from flask import Flask, render_template, jsonify, Blueprint
-
-from switch_checker.config import ZIP_CODE_API_KEY, GOOGLE_API_KEY
+from flask_cors import CORS
 
 
 bp = Blueprint('switch_checker_blueprint', __name__, template_folder='templates', static_folder='static')
-
+CORS(bp)
 ########################################################
 ########################################################
 ##
@@ -18,10 +18,7 @@ bp = Blueprint('switch_checker_blueprint', __name__, template_folder='templates'
 
 @bp.route("/")
 def index():
-    return render_template('index.html',
-                           GOOGLE_API_KEY=GOOGLE_API_KEY,
-                           ZIP_CODE_API_KEY=ZIP_CODE_API_KEY
-                          )
+    return render_template('index.html')
 
 @bp.route("/faq")
 def faq():
